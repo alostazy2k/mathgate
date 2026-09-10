@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Answer hash generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/theme.css" />
+<style>
+  .tool { max-width: 760px; margin: 0 auto; padding: 40px 22px 80px; }
+  .tool h1 { font-family: var(--f-display); font-size: 2rem; margin-bottom: 8px; }
+  .tool textarea {
+    width: 100%; min-height: 190px; padding: 14px 16px; font-family: var(--f-mono);
+    font-size: .95rem; direction: ltr; border: 1.5px solid var(--line-strong);
+    border-radius: var(--radius-s); background: var(--surface); color: var(--ink);
+  }
+  .tool pre {
+    background: #0f1c22; color: #D9DEF5; padding: 16px 18px; border-radius: var(--radius-s);
+    overflow-x: auto; font-family: var(--f-mono); font-size: .85rem; direction: ltr; margin-top: 16px;
+  }
+  .tool label { display:block; font-weight:600; margin: 22px 0 8px; }
+</style>
+</head>
+<body>
+<div class="tool">
+  <h1>Answer hash generator</h1>
+  <p style="color:var(--ink-soft)">Paste one accepted answer per line. Copy the generated array into the
+     question's <code>hashes</code> field in <code>data/questions.js</code>.</p>
+
+  <div class="ar-note">
+    <span class="ar-label">طريقة الاستخدام</span>
+    اكتب كل إجابة مقبولة في سطر. لأسئلة الاختيار من متعدد اكتب <span dir="ltr">q-110:0</span>
+    يعني رقم السؤال ثم نقطتين ثم ترتيب الإجابة الصحيحة (تبدأ من صفر).
+    الصفحة دي أداة داخلية ليك — ما تنشرهاش مع المنصة.
+  </div>
+
+  <label for="kind">Answer kind</label>
+  <select id="kind" style="padding:10px 14px;font-family:var(--f-mono);border:1.5px solid var(--line-strong);border-radius:var(--radius-s);background:var(--surface);color:var(--ink)">
+    <option value="">exact — plain match (default)</option>
+    <option value="set">set — order ignored: R-{3,-3} = R-{-3,3}</option>
+    <option value="interval">interval — order kept: [2,6] ≠ [6,2]</option>
+  </select>
+
+  <label for="src">Accepted answers — one per line</label>
+  <textarea id="src" spellcheck="false">[2,6]
+[3,inf)
+R-{-3,3}
+q-110:0</textarea>
+
+  <label for="out">Result</label>
+  <pre id="out"></pre>
+</div>
+
+<script src="../assets/engine.js"></script>
+<script>
+  var src = document.getElementById('src');
+  var kindSel = document.getElementById('kind');
+  var out = document.getElementById('out');
+  function run() {
+    var kind = kindSel.value || undefined;
+    var lines = src.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+    var rows = lines.map(function (l) {
+      return '  ' + JSON.stringify(l).padEnd(24) +
+             ' → "' + MathPlatform.hashAnswer(l, kind) + '"';
+    });
+    var arr = [];
+    lines.forEach(function (l) {
+      var h = MathPlatform.hashAnswer(l, kind);
+      if (arr.indexOf('"' + h + '"') === -1) arr.push('"' + h + '"');
+    });
+    out.textContent = rows.join('\n') +
+      '\n\n' + (kind ? "kind: '" + kind + "',\n" : '') +
+      'hashes: [' + arr.join(', ') + ']';
+  }
+  src.addEventListener('input', run);
+  kindSel.addEventListener('change', run);
+  run();
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Homework | Dr. Wessam Gouda</title>
+
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="assets/favicon.svg?v=3.7" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css" />
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js"></script>
+
+<link rel="stylesheet" href="assets/theme.css?v=3.7" />
+</head>
+
+<body>
+<div class="wrap">
+
+  <header class="masthead" id="hwHead" style="grid-template-columns:1fr"></header>
+
+  <div class="hw-panel">
+    <div id="hwIntro"></div>
+
+    <form id="hwForm">
+      <div class="student-row">
+        <div class="field">
+          <label for="sName">Full name <span class="req">*</span>
+            <span class="ar-inline">— الاسم كامل</span></label>
+          <input type="text" id="sName" name="student_name" required
+                 placeholder="Ahmed Mohamed" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="sPhone">Mobile number <span class="req">*</span>
+            <span class="ar-inline">— رقم الموبايل</span></label>
+          <input type="tel" id="sPhone" name="student_phone" required
+                 pattern="01[0-9]{9}" placeholder="01xxxxxxxxx"
+                 inputmode="numeric" autocomplete="tel" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="sEmail">Email <span class="optional">(optional)</span></label>
+        <input type="email" id="sEmail" name="student_email" placeholder="ahmed@email.com" autocomplete="email" />
+      </div>
+
+      <div class="section-divider"><span>Part A — Auto-graded</span><hr /></div>
+      <div id="hwAuto"></div>
+
+      <div class="section-divider"><span>Part B — Written</span><hr /></div>
+      <div id="hwManual"></div>
+
+      <button type="button" class="submit-btn" id="hwSubmit">Submit and send — إرسال</button>
+    </form>
+
+    <!-- filled by the engine: it needs L.next to build the next-lesson button -->
+    <div class="status-msg" id="hwOk" hidden></div>
+
+    <div class="status-msg error" id="hwErr" hidden>
+      <h3>Submission failed</h3>
+      <p id="hwErrText"></p>
+      <div class="ar-note warn">
+        <span class="ar-label">الإرسال ما نجحش</span>
+        اتأكد إن النت شغال وحاول تاني. إجاباتك لسه موجودة في الصفحة.
+      </div>
+    </div>
+  </div>
+
+  <footer><strong>Dr. Wessam Gouda</strong> · Mathematics</footer>
+</div>
+
+<!-- ===== the only two lines that change per lesson ===== -->
+<script src="assets/config.js?v=3.7"></script>
+<script src="data/questions.js?v=3.7"></script>
+<script src="data/u1-l1.js?v=3.7"></script>
+<!-- ==================================================== -->
+
+<script src="assets/engine.js?v=3.7"></script>
+<script>
+  window.addEventListener('load', function () { MathPlatform.renderHomework(); });
+</script>
+
+</body>
+</html>

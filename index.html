@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Real Functions — Unit 1 | Dr. Wessam Gouda</title>
+<meta name="description" content="الوحدة الأولى — الدوال الحقيقية. شرح بالفيديو، تمارين تفاعلية، وواجب مصحّح آلياً." />
+
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="assets/favicon.svg?v=3.7" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="assets/theme.css?v=3.7" />
+</head>
+
+<body>
+<div class="wrap home">
+
+  <header class="home-head">
+    <div class="home-mark">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#2F6F6B"/>
+        <path d="M10 46 Q32 6 54 46" fill="none" stroke="#F7F5F0" stroke-width="5" stroke-linecap="round"/>
+        <line x1="32" y1="9" x2="32" y2="55" stroke="#B4842A" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round"/>
+        <circle cx="32" cy="26" r="4.5" fill="#B4842A"/>
+      </svg>
+    </div>
+    <span class="eyebrow">Grade 1 Secondary · Unit 1 · Lesson 1–1</span>
+    <h1>Real Functions</h1>
+    <p class="home-lede">
+      Domain, range, piecewise rules, and the test that tells you whether a curve
+      is a function at all.
+    </p>
+    <div class="ar-note tip">
+      <span class="ar-label">ابدأ من هنا</span>
+      الدرس فيه شرح بالفيديو مقسّم مقاطع، تمارين تفاعلية كل واحد بحل مصوّر، وكويز سريع.
+      وبعدها الواجب بيتصحّح آلياً وبيوصل للدكتور وسام.
+      <strong>الدرس التالي بيفتح بعد ما تسلّم الواجب.</strong>
+    </div>
+  </header>
+
+  <nav class="home-actions" aria-label="روابط الدرس">
+    <a class="home-card" href="lesson.html">
+      <span class="hc-num">1</span>
+      <span class="hc-body">
+        <span class="hc-title">Start the lesson</span>
+        <span class="hc-ar">ابدأ الدرس — فيديو، شرح، تمارين، كويز</span>
+      </span>
+      <span class="hc-go">→</span>
+    </a>
+
+    <a class="home-card" href="homework.html">
+      <span class="hc-num">2</span>
+      <span class="hc-body">
+        <span class="hc-title">Homework</span>
+        <span class="hc-ar">الواجب — ٩ أسئلة تتصحّح آلياً + سؤال يصححه الدكتور بنفسه</span>
+      </span>
+      <span class="hc-go">→</span>
+    </a>
+  </nav>
+
+  <footer><strong>Dr. Wessam Gouda</strong> · Mathematics</footer>
+</div>
+
+<script src="assets/config.js?v=3.7"></script>
+<script>
+  /* version stamp, read from this page's own asset query */
+  (function () {
+    var m = /[?&]v=([^&"]+)/.exec(document.querySelector('link[href*="theme.css"]').getAttribute('href'));
+    var f = document.querySelector('footer');
+    var s = document.createElement('span');
+    s.className = 'build-stamp';
+    s.textContent = 'engine v' + (m ? m[1] : 'dev') + ' · u1-l1';
+    f.appendChild(s);
+
+    if (window.PLATFORM_CONFIG && window.PLATFORM_CONFIG.demoMode) {
+      var d = document.createElement('div');
+      d.className = 'demo-banner';
+      d.innerHTML = '<span class="db-title">نسخة عرض</span>' +
+        '<p>كل حاجة شغّالة عادي، بس <strong>الواجب مش بيتبعت فعلاً</strong> — ' +
+        'دي نسخة للاطلاع على شكل المنصة.</p>';
+      var w = document.querySelector('.wrap');
+      w.insertBefore(d, w.firstChild);
+    }
+  })();
+</script>
+
+</body>
+</html>
