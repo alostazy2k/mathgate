@@ -167,6 +167,21 @@ window.MathPlatform = (function () {
     return (window.Student && Student.locate) ? Student.locate(L.id) : null;
   }
 
+  /* Every video path in every lesson file is relative — `videos/<id>/x.mp4`.
+     `videoBase` in config.js is what turns those into absolute URLs the day
+     the files move off this server and onto a video host, so no lesson data
+     file ever has to be edited. It was declared in v3.7 and never actually
+     read; from v4.2 it is. An absolute path or a full URL passes through
+     untouched, so a single lesson can be moved on its own. */
+  function mediaUrl(src) {
+    if (!src) return src;
+    if (/^(https?:)?\/\//.test(src) || src.charAt(0) === '/') return src;
+    var base = (window.PLATFORM_CONFIG && window.PLATFORM_CONFIG.videoBase) || '';
+    if (!base) return src;
+    if (base.charAt(base.length - 1) !== '/') base += '/';
+    return base + src;
+  }
+
   function lessonUrl(id) {
     return (window.Student && Student.href) ? Student.href('lesson', id) : 'lesson.html?id=' + id;
   }
@@ -315,7 +330,7 @@ window.MathPlatform = (function () {
         b.setAttribute('aria-selected', String(i === j));
       });
       var s = v.segments[i];
-      video.src = s.src;
+      video.src = mediaUrl(s.src);
       video.poster = posterFor(s.title);
       cap.innerHTML = s.caption ? s.caption : '';
       if (s.ar) { var n = arNote({ label: 'ملخص المقطع', text: s.ar }); cap.appendChild(n); }
@@ -825,7 +840,7 @@ window.MathPlatform = (function () {
       video.load();
     }
     function open(src) {
-      video.src = src;
+      video.src = mediaUrl(src);
       modal.classList.add('open');
       video.play().catch(function () {});
     }

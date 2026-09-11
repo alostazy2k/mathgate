@@ -335,5 +335,331 @@ window.QUESTION_BANK = {
     prompt: 'Determine whether the relation \\( \\{(1,2), (2,3), (1,4)\\} \\) is a function, and explain your reasoning.',
     ar: 'اكتب التبرير كامل بخطواتك — السؤال ده الدكتور وسام بيصححه بنفسه ويرد عليك.'
   }
+,
+
+  /* ======================================================================
+     LESSON s1-u1-l1  ·  An Introduction in Complex Numbers
+     ----------------------------------------------------------------------
+     Every item below is ORIGINAL. The ministry book was read for its
+     PATTERNS only — the `pattern` field on each question names which one —
+     and not a single question, number or phrasing is copied from it.
+
+     The pattern map for this lesson (see README):
+       P1  positive integer power of i        P8   quadratic with imaginary roots
+       P2  negative power of i                P9   equality of two complex numbers
+       P3  symbolic power i^(4n+k)            P10  conjugates: sum and product
+       P4  simplifying sqrt of a negative     P11  division into a+bi form
+       P5  product of pure imaginaries        P12  real part / imaginary part
+       P6  addition and subtraction           P13  a real-world application
+       P7  multiplication of two complexes    P14  find-the-error / reasoning
+
+     The exam this year is half multiple choice and half written, so the
+     shapes are deliberate: `mcq` trains the first half, `steps` trains the
+     second — a written question broken into short auto-graded steps, which
+     also tells you WHICH step a student lost the thread at.
+     ====================================================================== */
+
+  /* ------------------------------------------- lesson exercises (q-13x) */
+
+  'q-130': {
+    type: 'mcq',
+    pattern: 'P1',
+    title: 'Powers of i',
+    points: 2,
+    prompt: 'Find \\( i^{58} \\) in its simplest form.' +
+      '<ol type="A">' +
+      '<li>\\( 1 \\)</li>' +
+      '<li>\\( -1 \\)</li>' +
+      '<li>\\( i \\)</li>' +
+      '<li>\\( -i \\)</li>' +
+      '</ol>',
+    options: ['A', 'B', 'C', 'D'],
+    hashes: ['d69430df'],
+    ar: 'اقسم الأس على ٤ وخد الباقي. الباقي هو اللي بيحدد الإجابة.',
+    explain: 'Divide the exponent by 4 and keep the remainder: \\(58 = 4(14) + 2\\), so \\(i^{58} = i^{2} = -1\\).',
+    explainAr: '٥٨ = ٤×١٤ + ٢، فالباقي ٢، و i² = −1.',
+    video: 'videos/s1-u1-l1/sol-power-of-i.mp4'
+  },
+
+  'q-131': {
+    type: 'numeric',
+    pattern: 'P4',
+    title: 'Square roots of negatives',
+    points: 2,
+    prompt: 'Find \\( \\sqrt{-8} \\times \\sqrt{-2} \\) in its simplest form.',
+    placeholder: 'a number',
+    entry: 'number',
+    inputHint: 'a real number',
+    hashes: ['90bddf8d'],
+    ar: 'خلّي بالك — دي أشهر غلطة في الدرس كله. حوّل كل جذر لصورة i الأول، وبعدين اضرب.',
+    explain: 'Convert each root to \\(i\\) form FIRST: \\(\\sqrt{-8} = 2\\sqrt{2}\\,i\\) and \\(\\sqrt{-2} = \\sqrt{2}\\,i\\). Then \\( (2\\sqrt{2}\\,i)(\\sqrt{2}\\,i) = 4i^{2} = -4 \\). Multiplying under one root first would give \\(+4\\), which is wrong: the rule \\(\\sqrt{a}\\sqrt{b}=\\sqrt{ab}\\) needs at least one of \\(a,b\\) to be non-negative.',
+    explainAr: 'حوّل لـ i الأول ثم اضرب. لو ضربت تحت جذر واحد هتطلع +4 وهي غلط — القاعدة دي مش شغّالة لما الاتنين سالبين.',
+    video: 'videos/s1-u1-l1/sol-sqrt-negative-trap.mp4'
+  },
+
+  'q-132': {
+    type: 'numeric',
+    pattern: 'P7',
+    title: 'Multiplying two complex numbers',
+    points: 2,
+    prompt: 'Write \\( (3 + 2i)(4 - 5i) \\) in the form \\( a + bi \\).',
+    placeholder: 'a+bi',
+    inputHint: 'the form a+bi',
+    hashes: ['72ba68db'],
+    ar: 'افتح الأقواس عادي، وبعدين حط i² = −1. اكتب الإجابة في صورة a+bi من غير مسافات.',
+    explain: 'Expand: \\(12 - 15i + 8i - 10i^{2}\\). Since \\(i^{2} = -1\\), the last term becomes \\(+10\\), giving \\(22 - 7i\\).',
+    explainAr: 'افتح الأقواس: 12 − 15i + 8i − 10i². الحد الأخير بيبقى +10، فالناتج 22 − 7i.',
+    video: 'videos/s1-u1-l1/sol-multiply-complex.mp4'
+  },
+
+  'q-133': {
+    type: 'steps',
+    pattern: 'P8',
+    title: 'A quadratic with imaginary roots',
+    points: 4,
+    prompt: 'Solve the equation \\( 2x^{2} + 50 = 0 \\) in the set of complex numbers.',
+    ar: 'خطوة خطوة. كل خطوة صح بتفتح اللي بعدها.',
+    steps: [
+      { prompt: 'Move 50 to the other side. What does \\(2x^{2}\\) equal?',
+        placeholder: 'a number', entry: 'number', hashes: ['11e424fe'] },
+      { prompt: 'Divide both sides by 2. What does \\(x^{2}\\) equal?',
+        placeholder: 'a number', entry: 'number', hashes: ['96d82a6a'] },
+      { prompt: 'Take the square root of both sides. Write the two roots, separated by a comma.',
+        placeholder: 'ai, -ai', kind: 'set', hashes: ['6d117bd5'],
+        ar: 'اكتب الجذرين بأي ترتيب — الترتيب مش مهم هنا.' }
+    ],
+    video: 'videos/s1-u1-l1/sol-quadratic-imaginary-roots.mp4'
+  },
+
+  'q-134': {
+    type: 'steps',
+    pattern: 'P9',
+    title: 'Equality of two complex numbers',
+    points: 4,
+    prompt: 'Find the values of \\(x\\) and \\(y\\) where \\(x, y \\in \\mathbb{R}\\), given that \\( (3x + 2y) + (x - y)i = 13 + i \\).',
+    ar: 'عددان مركبان متساويان ← الجزء الحقيقي = الجزء الحقيقي، والتخيلي = التخيلي. دي معادلتين في مجهولين.',
+    steps: [
+      { prompt: 'Equate the real parts. What does \\(3x + 2y\\) equal?',
+        placeholder: 'a number', entry: 'number', hashes: ['91dbf634'] },
+      { prompt: 'Equate the imaginary parts. What does \\(x - y\\) equal?',
+        placeholder: 'a number', entry: 'number', hashes: ['8943e14f'],
+        ar: 'معامل i على اليمين هو 1، مش صفر.' },
+      { prompt: 'Solve the two equations together. Write \\(x\\), then \\(y\\), separated by a comma.',
+        placeholder: 'x, y', kind: 'interval', hashes: ['865d288b'],
+        ar: 'الترتيب مهم هنا: x الأول وبعدين y.' }
+    ],
+    video: 'videos/s1-u1-l1/sol-equality-xy.mp4'
+  },
+
+  'q-135': {
+    type: 'numeric',
+    pattern: 'P6',
+    title: 'Adding and subtracting',
+    points: 2,
+    prompt: 'Write \\( (9 - 4i) - (3 + 6i) \\) in the form \\( a + bi \\).',
+    placeholder: 'a+bi',
+    inputHint: 'the form a+bi',
+    hashes: ['992ead8b'],
+    ar: 'اطرح الأجزاء الحقيقية من بعض، والأجزاء التخيلية من بعض. خد بالك من الإشارة قدام القوس.',
+    explain: 'Subtract real from real and imaginary from imaginary: \\((9-3) + (-4-6)i = 6 - 10i\\). The minus sign applies to BOTH terms in the second bracket.',
+    explainAr: 'الإشارة السالبة بتتوزع على الحدّين جوه القوس التاني، مش على الأول بس.',
+    video: 'videos/s1-u1-l1/sol-add-subtract.mp4'
+  },
+
+  /* -------------------------------------------------------- quiz (q-14x) */
+  /* All five are multiple choice on purpose — this block is the mirror of
+     the multiple-choice half of the exam. */
+
+  'q-140': {
+    type: 'mcq', pattern: 'P1', points: 2,
+    title: 'Power of i',
+    prompt: 'What is \\( i^{75} \\) ?' +
+      '<ol type="A"><li>\\(1\\)</li><li>\\(i\\)</li><li>\\(-1\\)</li><li>\\(-i\\)</li></ol>',
+    options: ['A', 'B', 'C', 'D'],
+    hashes: ['82fe7e7e'],
+    video: 'videos/s1-u1-l1/quiz1.mp4'
+  },
+
+  'q-141': {
+    type: 'mcq', pattern: 'P2', points: 2,
+    title: 'Negative power of i',
+    prompt: 'What is \\( i^{-34} \\) ?' +
+      '<ol type="A"><li>\\(1\\)</li><li>\\(-1\\)</li><li>\\(i\\)</li><li>\\(-i\\)</li></ol>',
+    options: ['A', 'B', 'C', 'D'],
+    hashes: ['c8539ff'],
+    video: 'videos/s1-u1-l1/quiz2.mp4'
+  },
+
+  'q-142': {
+    type: 'mcq', pattern: 'P3', points: 2,
+    title: 'Symbolic power',
+    prompt: 'If \\( n \\in \\mathbb{Z} \\), what is \\( i^{4n+7} \\) ?' +
+      '<ol type="A"><li>\\(i\\)</li><li>\\(-i\\)</li><li>\\(1\\)</li><li>\\(-1\\)</li></ol>',
+    options: ['A', 'B', 'C', 'D'],
+    hashes: ['abee030e'],
+    video: 'videos/s1-u1-l1/quiz3.mp4'
+  },
+
+  'q-143': {
+    type: 'mcq', pattern: 'P10', points: 2,
+    title: 'Conjugate numbers',
+    prompt: 'For the two conjugate numbers \\( a + bi \\) and \\( a - bi \\), where \\(a, b \\in \\mathbb{R}\\) and \\(b \\neq 0\\), which of the following is always a real number?' +
+      '<ol type="A"><li>their difference</li><li>their sum only</li><li>their product only</li>' +
+      '<li>both their sum and their product</li></ol>',
+    options: ['A', 'B', 'C', 'D'],
+    hashes: ['c5608687'],
+    video: 'videos/s1-u1-l1/quiz4.mp4'
+  },
+
+  'q-144': {
+    type: 'mcq', pattern: 'P12', points: 2,
+    title: 'Pure imaginary',
+    prompt: 'For which value of \\(k\\) is the number \\( z = (k - 3) + 5i \\) a pure imaginary number?' +
+      '<ol type="A"><li>\\(k = -3\\)</li><li>\\(k = 3\\)</li><li>\\(k = 5\\)</li><li>\\(k = -5\\)</li></ol>',
+    options: ['A', 'B', 'C', 'D'],
+    hashes: ['3daf08d4'],
+    video: 'videos/s1-u1-l1/quiz5.mp4'
+  },
+
+  /* ------------------------------------------- homework · part A (h-22x) */
+  /* Auto-graded, multiple choice and short answers — the exam's first half. */
+
+  'h-220': {
+    type: 'mcq', pattern: 'P2', points: 2,
+    title: 'Negative power',
+    prompt: 'Find \\( i^{-27} \\) in its simplest form.' +
+      '<ol type="A"><li>\\(i\\)</li><li>\\(-i\\)</li><li>\\(1\\)</li><li>\\(-1\\)</li></ol>',
+    options: ['A', 'B', 'C', 'D'],
+    hashes: ['8d172663'],
+    ar: 'اوجد i^27 الأول، وبعدين خد المقلوب.',
+    video: 'videos/s1-u1-l1/hw-negative-power.mp4'
+  },
+
+  'h-221': {
+    type: 'mcq', pattern: 'P3', points: 2,
+    title: 'Symbolic power',
+    prompt: 'If \\( n \\in \\mathbb{Z} \\), then \\( i^{4n+22} = \\) ?' +
+      '<ol type="A"><li>\\(1\\)</li><li>\\(-1\\)</li><li>\\(i\\)</li><li>\\(-i\\)</li></ol>',
+    options: ['A', 'B', 'C', 'D'],
+    hashes: ['b79d4c57'],
+    ar: 'حوّل 4n+22 لصورة 4m + باقي، والباقي أصغر من 4.',
+    video: 'videos/s1-u1-l1/hw-symbolic-power.mp4'
+  },
+
+  'h-222': {
+    type: 'numeric', pattern: 'P5', points: 2,
+    title: 'Product of pure imaginaries',
+    prompt: 'Find \\( (-3i)(5i) \\) in its simplest form.',
+    placeholder: 'a number', entry: 'number',
+    hashes: ['8fdbf30e'],
+    ar: 'اضرب المعاملات، وبعدين حط i² = −1. الناتج عدد حقيقي.',
+    video: 'videos/s1-u1-l1/hw-imaginary-product.mp4'
+  },
+
+  'h-223': {
+    type: 'numeric', pattern: 'P10', points: 2,
+    title: 'Product of conjugates',
+    prompt: 'Find the product of \\( 7 - 2i \\) and its conjugate.',
+    placeholder: 'a number', entry: 'number',
+    hashes: ['f9d20c90'],
+    ar: 'مرافق a − bi هو a + bi، وحاصل ضربهم دايماً a² + b².',
+    video: 'videos/s1-u1-l1/hw-conjugate-product.mp4'
+  },
+
+  'h-224': {
+    type: 'mcq', pattern: 'P12', points: 2,
+    title: 'Pure real',
+    prompt: 'The number \\( z = (2m + 6) + (m - 4)i \\) is a pure real number when:' +
+      '<ol type="A"><li>\\(m = -3\\)</li><li>\\(m = 4\\)</li><li>\\(m = -4\\)</li><li>\\(m = 3\\)</li></ol>',
+    options: ['A', 'B', 'C', 'D'],
+    hashes: ['c789b44c'],
+    ar: 'عدد حقيقي بحت معناه الجزء التخيلي بصفر.',
+    video: 'videos/s1-u1-l1/hw-pure-real.mp4'
+  },
+
+  /* ------------------------------------------- homework · part B (h-22x) */
+  /* Written questions, broken into auto-graded steps — the exam's second
+     half, plus one question Dr Wessam marks himself. */
+
+  'h-225': {
+    type: 'steps', pattern: 'P7', points: 4,
+    title: 'Squaring a complex number',
+    prompt: 'Write \\( (4 + 3i)^{2} \\) in the form \\( a + bi \\).',
+    ar: 'استخدم (a+b)² = a² + 2ab + b². خد بالك من i² في الحد الأخير.',
+    steps: [
+      { prompt: 'What is the value of \\( (3i)^{2} \\) ?',
+        placeholder: 'a number', entry: 'number', hashes: ['83bdcb16'] },
+      { prompt: 'What is the coefficient of \\(i\\) in the middle term \\(2 \\times 4 \\times 3i\\) ?',
+        placeholder: 'a number', entry: 'number', hashes: ['7ede16e2'] },
+      { prompt: 'Now write the whole answer in the form \\(a + bi\\).',
+        placeholder: 'a+bi', hashes: ['2bc28623'] }
+    ],
+    video: 'videos/s1-u1-l1/hw-square-complex.mp4'
+  },
+
+  'h-226': {
+    type: 'steps', pattern: 'P9', points: 4,
+    title: 'Equality of two complex numbers',
+    prompt: 'Find \\(x\\) and \\(y\\), where \\(x, y \\in \\mathbb{R}\\), given that \\( (2x - y) + (x + 3y)i = 7 + 7i \\).',
+    ar: 'ساوي الحقيقي بالحقيقي والتخيلي بالتخيلي، وبعدين حل المعادلتين مع بعض.',
+    steps: [
+      { prompt: 'Equating the real parts: \\(2x - y = \\) ?',
+        placeholder: 'a number', entry: 'number', hashes: ['8743de29'] },
+      { prompt: 'Equating the imaginary parts: \\(x + 3y = \\) ?',
+        placeholder: 'a number', entry: 'number', hashes: ['8743de29'] },
+      { prompt: 'Solve the two equations together. Write \\(x\\), then \\(y\\), separated by a comma.',
+        placeholder: 'x, y', kind: 'interval', hashes: ['122197f'],
+        ar: 'الترتيب مهم: x الأول.' }
+    ],
+    video: 'videos/s1-u1-l1/hw-equality-system.mp4'
+  },
+
+  'h-227': {
+    type: 'steps', pattern: 'P11', points: 4,
+    title: 'Division of complex numbers',
+    prompt: 'Write \\( \\dfrac{5 + i}{2 - 3i} \\) in the form \\( a + bi \\).',
+    ar: 'اضرب البسط والمقام في مرافق المقام — ده بيخلي المقام عدد حقيقي.',
+    steps: [
+      { prompt: 'Write the conjugate of the denominator — the number you multiply by.',
+        placeholder: 'a+bi', hashes: ['eedd7233'] },
+      { prompt: 'Multiply out the numerator \\((5+i)(2+3i)\\) and write it in the form \\(a+bi\\).',
+        placeholder: 'a+bi', hashes: ['5e79985d'] },
+      { prompt: 'What is the new denominator? It must be a real number.',
+        placeholder: 'a number', entry: 'number', hashes: ['91dbf634'],
+        ar: '(2 − 3i)(2 + 3i) = 2² + 3².' }
+    ],
+    video: 'videos/s1-u1-l1/hw-division.mp4'
+  },
+
+  'h-229': {
+    type: 'steps', pattern: 'P13', points: 4,
+    title: 'Complex numbers in an electric circuit',
+    prompt: 'In an alternating-current circuit the voltage is \\( V = I \\times Z \\), where \\(I\\) is the current ' +
+      'and \\(Z\\) is the impedance, both measured as complex numbers. ' +
+      'A circuit carries a current \\( I = 3 + 2i \\) amperes through an impedance \\( Z = 4 - i \\) ohms. ' +
+      'Find the voltage \\(V\\) in the form \\( a + bi \\).',
+    ar: 'ده مش سؤال نظري — الأعداد المركبة بتستخدم فعلاً في هندسة الكهرباء. اضرب زي أي عددين مركبين.',
+    steps: [
+      { prompt: 'Multiply the two real parts: \\( 3 \\times 4 = \\) ?',
+        placeholder: 'a number', entry: 'number', hashes: ['92dbf7c7'] },
+      { prompt: 'The product \\( (2i)(-i) \\) contains \\(i^{2}\\). After using \\(i^{2} = -1\\), what real number does it become?',
+        placeholder: 'a number', entry: 'number', hashes: ['8a43e2e2'],
+        ar: '(2i)(−i) = −2i² = +2.' },
+      { prompt: 'Write the total voltage \\(V\\) in the form \\(a + bi\\).',
+        placeholder: 'a+bi', hashes: ['b0ea9828'] }
+    ],
+    video: 'videos/s1-u1-l1/hw-circuit.mp4'
+  },
+
+  'h-228': {
+    type: 'essay', pattern: 'P14', points: 4,
+    title: 'Find the error',
+    prompt: 'Two students were asked to simplify \\( \\sqrt{-4} \\times \\sqrt{-9} \\).' +
+      '<br><br><strong>Student A wrote:</strong> \\( \\sqrt{-4} \\times \\sqrt{-9} = \\sqrt{(-4)(-9)} = \\sqrt{36} = 6 \\)' +
+      '<br><strong>Student B wrote:</strong> \\( \\sqrt{-4} \\times \\sqrt{-9} = (2i)(3i) = 6i^{2} = -6 \\)' +
+      '<br><br>Which student is correct? Explain the error in the other solution, and state the condition ' +
+      'under which the rule \\( \\sqrt{a} \\times \\sqrt{b} = \\sqrt{ab} \\) is valid.',
+    ar: 'اكتب تبريرك كامل. السؤال ده الدكتور وسام بيصححه بنفسه ويرد عليك — مش بيتصحّح آلياً.'
+  }
 
 };

@@ -210,9 +210,20 @@ window.Student = (function () {
      it IS real work the student did, so «الواجبات المستحقة» and «ملخص الأداء»
      count it — a page that shows 9% progress on a lesson and «0 دروس بدأتها»
      in the same screen is simply lying. */
-  function demo() {
+  function demo(yearId) {
     var d = window.COURSE && window.COURSE.demo;
     if (!d || !d.show) return null;
+
+    /* A trial lesson belongs to one year. Since lesson 1-1 became real, the
+       trial moved to Grade 2 Secondary — so a Grade 1 student now sees his
+       own syllabus and nothing else. A trial with no `year` belongs to
+       everyone, which is how it behaved before. */
+    if (d.year) {
+      var who = yearId || (profile() && profile().year);
+      if (who && who !== d.year) return null;
+      if (!who) return null;
+    }
+
     return {
       id: d.id, no: '—', data: d.data, title: d.title, titleAr: d.titleAr,
       noteAr: d.noteAr, unitNo: 0, unitTitle: 'Trial lesson', unitTitleAr: 'درس تجريبي',
@@ -223,7 +234,7 @@ window.Student = (function () {
   /* Everything that counts towards the student's record: the year's lessons,
      plus the trial lesson when it is switched on. */
   function tracked(yearId) {
-    var d = demo();
+    var d = demo(yearId);
     return d ? [d].concat(lessons(yearId)) : lessons(yearId);
   }
 

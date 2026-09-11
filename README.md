@@ -24,7 +24,10 @@ platform/
 ├── data/
 │   ├── course.js        THE COURSE MAP — years, units, lessons, free/locked flags
 │   ├── questions.js     the question bank — every question, written once
-│   └── u1-l1.js         the trial lesson (Real Functions) — not syllabus content
+│   ├── s1-u1-l1.js      LESSON 1-1 — An Introduction in Complex Numbers
+│   └── u1-l1.js         the Real Functions trial — now the Grade 2 trial lesson
+├── docs/
+│   └── shooting-list-s1-u1-l1.md    every clip to record, with its file name
 └── tools/
     └── hash.html        generates answer hashes (internal tool — do not publish)
 ```
@@ -363,7 +366,8 @@ arrives in Step 4 below, with student accounts.
 | 5b | Move off Netlify to GitHub Pages (Egypt access) | done |
 | 6a | Platform shell: course map, student record, personal page | done — v4.0 |
 | 6b | Registration, price anchor, tagged signals, backend switch | done — v4.1 |
-| 4 | Record Unit 1: 5 lessons, starting with 1–4 إشارة الدالة | next |
+| 6c | Lesson 1-1 built from the ministry book, 14 patterns | done — v4.2 |
+| 4 | Record Unit 1: the 25 clips in docs/shooting-list-s1-u1-l1.md | next |
 | 5 | Publish free, on the domain, collecting name + mobile | after 4 |
 | 6 | Move video to Bunny Stream (signed URLs + watermark) | during term |
 | 7 | Student accounts + server-side grading (Supabase) | during term |
@@ -442,7 +446,7 @@ number that matters is the one stamped on the emails you keep.
 
 ## Which version am I looking at?
 
-The bottom of every page prints a build stamp: **`engine v4.1.1 · u1-l1`**.
+The bottom of every page prints a build stamp: **`engine v4.2 · s1-u1-l1`**.
 If that number does not match the release you just extracted, the browser is serving a
 cached file or you opened an older `platform/` folder.
 
@@ -470,6 +474,48 @@ keeps what you submitted yesterday, no matter how many times you re-extract the 
 ---
 
 ## Changelog
+
+### v4.2 — lesson 1-1, built from the book
+
+The trial lesson is replaced by real syllabus content.
+
+- **`data/s1-u1-l1.js`** — *An Introduction in Complex Numbers*, built from the
+  ministry student book, pages 4-9 (English edition): four sections, five video
+  segments, seven worked examples, four *Common mistakes* blocks.
+- **19 original questions** in the bank, covering **all 14 question patterns**
+  found in that lesson of the book. Not one question is copied — the book was
+  read for its patterns, and every item carries a `pattern` field (P1 … P14), so
+  coverage can be audited and changed without touching the lesson.
+- **Shaped for this year's exam, which is half multiple choice and half
+  written:** the quiz is all MCQ, and the homework is 5 objective + 4 `steps` +
+  1 essay. A written question becomes a chain of short auto-graded steps — same
+  depth, and it tells you which step the student lost the thread at.
+- **The Real Functions trial moved to Grade 2 Secondary** (`demo.year` in
+  `course.js`), so a Grade 1 student now sees his own syllabus and nothing else.
+- **`videoBase` is finally read by the engine.** It was declared in v3.7 and
+  silently ignored, so moving video to a host would have meant editing every
+  lesson file. Now it is one line.
+- **`.gitignore`** keeps `videos/` and `tools/hash.html` out of the repository.
+- `docs/shooting-list-s1-u1-l1.md` — the 25 clips to record, each with the exact
+  file name the code already expects.
+
+#### The pattern map for lesson 1-1
+
+| | Pattern | | Pattern |
+|---|---|---|---|
+| P1 | positive integer power of i | P8 | quadratic with imaginary roots |
+| P2 | negative power of i | P9 | equality of two complex numbers |
+| P3 | symbolic power i^(4n+k) | P10 | conjugates: sum and product |
+| P4 | simplifying the square root of a negative | P11 | division into a+bi form |
+| P5 | product of pure imaginaries | P12 | real part / imaginary part |
+| P6 | addition and subtraction | P13 | a real-world application |
+| P7 | multiplication of two complex numbers | P14 | find-the-error / reasoning |
+
+To audit coverage later, or to find every question of one pattern:
+
+```js
+Object.entries(QUESTION_BANK).filter(([id, q]) => q.pattern === 'P11')
+```
 
 ### v4.1.1 — fix: the lesson file is named by the course map
 

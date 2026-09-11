@@ -39,19 +39,23 @@ window.COURSE = {
 
   /* ----------------------------------------------------------------------
      THE TRIAL LESSON
-     Real Functions is not part of the Grade 1 Secondary syllabus — it was
-     built to settle the lesson format. It keeps its original id `u1-l1`, so
-     nothing a student (or you) already did on it is lost. It is shown in its
-     own row above the units map, labelled for what it is.
-     Set `show: false` the day you want it gone.
+     Real Functions was built to settle the lesson format. It keeps its
+     original id `u1-l1`, so nothing already done on it is lost.
+
+     `year` says WHOSE trial it is. It is now 's2' — Grade 2 Secondary, whose
+     own content has not started — so a Grade 1 student never sees it: his
+     page shows the real syllabus and nothing else, which is the whole point
+     of replacing the trial with lesson 1-1.
+     Set `show: false` the day you want it gone entirely.
      ---------------------------------------------------------------------- */
   demo: {
     show: true,
+    year: 's2',
     id: 'u1-l1',
     data: 'u1-l1',
     title: 'Real Functions',
     titleAr: 'الدوال الحقيقية',
-    noteAr: 'درس تجريبي — مش من منهج أولى ثانوي. موجود عشان تشوف شكل الدرس كامل: فيديو، شرح، تمارين، كويز، وواجب.'
+    noteAr: 'درس تجريبي — موجود عشان تشوف شكل الدرس كامل: فيديو، شرح، تمارين، كويز، وواجب. مش من المنهج الرسمي.'
   },
 
   /* ----------------------------------------------------------------------
@@ -88,7 +92,7 @@ window.COURSE = {
             titleAr: 'الجبر والعلاقات والدوال',
             free: true,
             lessons: [
-              { id: 's1-u1-l1', no: '1–1', data: null,
+              { id: 's1-u1-l1', no: '1–1', data: 's1-u1-l1',
                 title: 'Complex Numbers — An Introduction',
                 titleAr: 'مقدمة في الأعداد المركبة' },
               { id: 's1-u1-l2', no: '1–2', data: null,
