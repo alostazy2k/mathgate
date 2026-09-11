@@ -7,9 +7,16 @@
 
    Two independent flags decide what a student sees:
 
-     data   the name of the lesson's file in data/ , or null.
-            null  → the lesson is listed but not built yet  → «قريباً»
-            'x'   → data/x.js exists and the lesson can open
+     data   the name of the lesson's file in data/ (without .js), or null.
+            null    → the lesson is listed but not built yet  → «قريباً»
+            's1-u1-l4' → data/s1-u1-l4.js exists and the lesson can open
+
+            The name does NOT have to match the lesson's id. Two entries may
+            point at the same file — which is how you PREVIEW a door before
+            the lessons behind it are recorded. Set lesson 1–1 to
+            data: 'u1-l1' and you suddenly have two openable lessons, so the
+            registration gate has a second lesson to guard and you can see it
+            work. Put it back to null when you are done looking.
 
      free   set on the UNIT.  true  → open to everyone
                               false → opens with a subscription

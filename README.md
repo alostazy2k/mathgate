@@ -442,7 +442,7 @@ number that matters is the one stamped on the emails you keep.
 
 ## Which version am I looking at?
 
-The bottom of every page prints a build stamp: **`engine v4.1 · u1-l1`**.
+The bottom of every page prints a build stamp: **`engine v4.1.1 · u1-l1`**.
 If that number does not match the release you just extracted, the browser is serving a
 cached file or you opened an older `platform/` folder.
 
@@ -470,6 +470,17 @@ keeps what you submitted yesterday, no matter how many times you re-extract the 
 ---
 
 ## Changelog
+
+### v4.1.1 — fix: the lesson file is named by the course map
+
+`lesson.html?id=X` was loading `data/X.js`, ignoring the `data:` field in
+`data/course.js` entirely — so that field looked like a filename while being
+treated as a yes/no flag. It is now what actually picks the file.
+
+That fix is what makes **preview mode** possible: point a second entry at an
+existing file (`data: 'u1-l1'` on lesson 1–1) and you have two openable
+lessons, so the registration gate has something to guard and you can watch it
+work before a single lesson is recorded. Set it back to `null` afterwards.
 
 ### v4.1 — registration, price and the backend switch (stage 6-ب)
 
