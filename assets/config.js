@@ -45,5 +45,65 @@ window.PLATFORM_CONFIG = {
      send you one extra homework email, and every submission carries its
      attempt number so you always know which is the latest.
      ---------------------------------------------------------------------- */
-  retryCode: 'w2026a'
+  retryCode: 'w2026a',
+
+  /* ======================================================================
+     BACKEND
+     --------------------------------------------------------------------
+     null        → no server. Everything that genuinely needs one is BUILT
+                   but switched off, and says so plainly to the student
+                   instead of silently missing.
+     'supabase'  → the server is live; those features turn themselves on.
+
+     What is waiting on this switch, and why each one actually needs a
+     server (none of these can be faked in the browser):
+
+       accounts    a real login, so a student keeps his progress when he
+                   changes phone or clears his browser
+       grading     answers that never reach the browser at all, instead of
+                   today's salted hashes
+       roster      real numbers for you — who registered, who finished —
+                   instead of counting emails
+       autoUnlock  a paid subscription that opens by itself after payment,
+                   instead of a code you send by hand
+
+     Cost note, so the decision is made on facts: Supabase's free tier
+     covers this platform's entire first year (500 MB, 50k monthly users).
+     The paid tier ($25/month) buys daily backups and stops the project
+     pausing after a week of inactivity — which matters the day real
+     students depend on logging in, and not one day before.
+     ====================================================================== */
+  backend: null,
+
+  /* ----------------------------------------------------------------------
+     PRICE
+     The anchor, not a paywall. A thing with no stated price is read as
+     worth nothing — so the term price is declared, and Unit 1 is given
+     away against it. Change the numbers here and every screen follows.
+     ---------------------------------------------------------------------- */
+  pricing: {
+    currency: 'ج.م',
+    termPrice: 300,        /* the declared value of a full term */
+    unitPrice: 50,         /* what Unit 2 actually costs — the market test */
+    /* WHICH units are free is not set here on purpose: it lives on each unit
+       in data/course.js, next to the unit itself. One fact, one place. */
+    payHowAr: 'التحويل على فودافون كاش، وابعتلي صورة التحويل على واتساب وهبعتلك كود الفتح في نفس اليوم.',
+    contact: ''            /* your WhatsApp number — leave '01006396095' to hide the line */
+  },
+
+  /* ----------------------------------------------------------------------
+     REGISTRATION
+     afterLessons: 1 → the first lesson is open to a complete stranger, no
+     name, no number, no friction. From the second lesson on, he registers.
+
+     announce: true → the rule is stated on the student's page BEFORE he
+     starts, exactly like the homework gate. A rule known in advance reads
+     as a rule; the same rule discovered at the end reads as a trap, and
+     the trap arrives at the worst possible moment — right after he has
+     invested a whole lesson.
+     ---------------------------------------------------------------------- */
+  registration: {
+    afterLessons: 1,
+    announce: true
+  }
 };

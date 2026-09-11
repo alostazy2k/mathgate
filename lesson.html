@@ -19,7 +19,7 @@
 -->
 
 <meta name="robots" content="noindex, nofollow" />
-<link rel="icon" href="assets/favicon.svg?v=4.0" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.svg?v=4.1" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -32,7 +32,7 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
 
-<link rel="stylesheet" href="assets/theme.css?v=4.0" />
+<link rel="stylesheet" href="assets/theme.css?v=4.1" />
 </head>
 
 <body>
@@ -72,10 +72,11 @@
   </div>
 </div>
 
-<script src="assets/config.js?v=4.0"></script>
-<script src="data/course.js?v=4.0"></script>
-<script src="assets/student.js?v=4.0"></script>
-<script src="data/questions.js?v=4.0"></script>
+<script src="assets/config.js?v=4.1"></script>
+<script src="data/course.js?v=4.1"></script>
+<script src="assets/student.js?v=4.1"></script>
+<script src="assets/access.js?v=4.1"></script>
+<script src="data/questions.js?v=4.1"></script>
 
 <!-- ===== the lesson's own data file, picked by ?id= =====================
      document.write is deliberate here. It is the one technique that keeps a
@@ -88,11 +89,11 @@
   (function () {
     var m = /[?&]id=([A-Za-z0-9_-]+)/.exec(location.search);
     var id = m ? m[1] : 'u1-l1';
-    document.write('<scr' + 'ipt src="data/' + id + '.js?v=4.0"><\/scr' + 'ipt>');
+    document.write('<scr' + 'ipt src="data/' + id + '.js?v=4.1"><\/scr' + 'ipt>');
   })();
 </script>
 
-<script src="assets/engine.js?v=4.0"></script>
+<script src="assets/engine.js?v=4.1"></script>
 <script>
   window.addEventListener('load', function () { MathPlatform.renderLesson(); });
 </script>

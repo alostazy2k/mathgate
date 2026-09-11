@@ -17,6 +17,7 @@ platform/
 │   ├── theme.css        all styling for the whole platform (one file, 60 lessons)
 │   ├── engine.js        renderer + auto-grading + progress (one file, 60 lessons)
 │   ├── student.js       THE STUDENT RECORD — the only file that touches storage
+│   ├── access.js        the three doors: registration, price, backend switch
 │   ├── home.js          draws index.html: first-visit screen + the five blocks
 │   ├── config.js        site-wide settings (Web3Forms key, video base URL)
 │   └── favicon.svg      site icon
@@ -124,6 +125,89 @@ wg:hwbest:<id>       highest attempt, percent     unchanged since v3
 
 The last three are read, never renamed: a student who did lesson work on v3.7 opens v4.0
 and finds every bit of it still there, his homework still submitted and his gate still open.
+
+---
+
+## The three doors — `assets/access.js`
+
+### 1. Registration — value first, then the ask
+
+The **first lesson is open to a complete stranger**: no name, no number, no
+friction. From the second lesson on, he registers with a name and a mobile.
+
+**And he is told this before he starts**, on his own page:
+
+> الدرس الأول مفتوح على طول من غير أي تسجيل.
+> بعده بأسألك على اسمك ورقمك — عشان أعرف أتابع مستواك، وأصحّح واجبك بنفسي وأبعتلك الدرجة.
+
+This is the same principle as the homework gate: a rule stated in advance reads
+as a rule, the same rule discovered at the end reads as a trap — and it would
+arrive at the worst possible moment, right after he has spent a whole lesson.
+Note that the sentence gives the **reason**, and the reason is a benefit to him.
+
+The gate holds wherever he arrives from: clicking in the map, or typing a
+lesson URL a friend sent him. It counts only lessons that **exist** — a
+«قريباً» lesson was never a free lesson he could have had.
+
+A student who submits the first homework has already given his name and number
+on that form, so that submission counts as his registration. He is never asked
+twice for the same thing.
+
+`registration.afterLessons` in `config.js` moves the door; `announce: false`
+silences the notice.
+
+### 2. The price — an anchor, not a paywall
+
+A thing with no stated price is read as worth nothing. So the term price is
+**declared** and Unit 1 is given away against it:
+
+> قيمة اشتراك الترم **300 ج.م** — الوحدة الأولى مفتوحة **مجاناً** للدفعة الأولى.
+
+A locked unit's «بالاشتراك» chip is a **button**. This matters while units 2–4
+hold no recorded lessons: every lesson inside them reads «قريباً», so without
+the chip the student would never learn a paid tier exists — and you would never
+learn he looked. Both numbers live in `config.js` → `pricing`. Which units are
+free does **not** live there: it is `free:` on each unit in `data/course.js`,
+next to the unit itself. One fact, one place.
+
+### 3. The backend switch — built, and switched off
+
+```js
+backend: null      // 'supabase' when the server is live
+```
+
+Four features genuinely cannot work in a browser alone. They are **built**, and
+while the switch is `null` each one says so where it would have been, instead of
+being silently missing:
+
+| Feature | Why it needs a server |
+|---|---|
+| حساب بكلمة سر | progress that follows him to another phone |
+| تصحيح على السيرفر | answers that never reach the browser at all |
+| متابعة الطلاب | real numbers for you |
+| فتح الاشتراك تلقائياً | payment that opens the unit with no code by hand |
+
+Flip one word and they turn themselves on.
+
+---
+
+## Where the numbers actually are
+
+**The inbox is the database** until `backend` is switched on. Every signal
+carries a tag in its subject, and one search per tag is the count:
+
+```
+[register]   a new student, with his number
+[paywall]    someone stood in front of the price and did not pay
+[u1-l1]      a homework came in
+```
+
+The DEV panel is called **«سجل الطالب على الجهاز ده»** and not «إحصائيات» on
+purpose. This is a static file with no server: it can only ever see the browser
+it is running in. Calling one browser's record "statistics" would be the most
+expensive kind of wrong number — the confident kind.
+
+`demoMode: true` behaves identically and sends nothing, signals included.
 
 ---
 
@@ -278,6 +362,7 @@ arrives in Step 4 below, with student accounts.
 | 5a | Landing page, demo mode, deploy guide | done — v3.6 |
 | 5b | Move off Netlify to GitHub Pages (Egypt access) | done |
 | 6a | Platform shell: course map, student record, personal page | done — v4.0 |
+| 6b | Registration, price anchor, tagged signals, backend switch | done — v4.1 |
 | 4 | Record Unit 1: 5 lessons, starting with 1–4 إشارة الدالة | next |
 | 5 | Publish free, on the domain, collecting name + mobile | after 4 |
 | 6 | Move video to Bunny Stream (signed URLs + watermark) | during term |
@@ -357,7 +442,7 @@ number that matters is the one stamped on the emails you keep.
 
 ## Which version am I looking at?
 
-The bottom of every page prints a build stamp: **`engine v4.0 · u1-l1`**.
+The bottom of every page prints a build stamp: **`engine v4.1 · u1-l1`**.
 If that number does not match the release you just extracted, the browser is serving a
 cached file or you opened an older `platform/` folder.
 
@@ -385,6 +470,27 @@ keeps what you submitted yesterday, no matter how many times you re-extract the 
 ---
 
 ## Changelog
+
+### v4.1 — registration, price and the backend switch (stage 6-ب)
+
+The platform stops being anonymous, and starts telling you what it is worth.
+
+- **`assets/access.js`** — registration, the price panel and the backend switch,
+  in one file. It stores nothing itself: every fact goes through `Student.*`.
+- **Registration after the first lesson, announced before it.** First lesson free
+  to a stranger; from the second on, name and mobile. The rule is on his page
+  before he starts. Submitting the first homework counts as registering.
+- **The gate holds on a direct URL too** — not only when he walks in via the map.
+- **A declared price.** `300 ج.م` for the term, `50 ج.م` for a unit, both in
+  `config.js`. A locked unit's chip is a button that opens the price panel.
+- **Tagged email signals** — `[register]` and `[paywall]` — so the inbox can be
+  counted until there is a database. `demoMode` suppresses them like everything else.
+- **`backend: null`** — four server-dependent features built and switched off,
+  each explaining itself where it would have been.
+- **The DEV panel** is now the student's record for this browser, plus the service
+  status, and it is named honestly instead of being called statistics.
+- Storing a registration no longer requires a year, so a visitor who arrives on a
+  direct lesson link can register without ever seeing «اختر مرحلتك».
 
 ### v4.0 — the platform shell (stage 6-أ)
 

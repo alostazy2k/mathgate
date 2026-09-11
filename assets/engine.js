@@ -858,8 +858,26 @@ window.MathPlatform = (function () {
       '</div>';
   }
 
+  /* The registration door, for someone who typed a lesson URL directly or
+     followed a link from a friend. The page's own rule has to hold wherever
+     the student arrives from, not only when he walks in through the map. */
+  function registrationWall() {
+    var wrap = document.querySelector('.wrap');
+    if (!wrap) return;
+    wrap.innerHTML = '<div id="regHost"></div>';
+    Access.renderRegistration(document.getElementById('regHost'), {
+      lessonId: window.LESSON ? window.LESSON.id : '',
+      onDone: function () { location.reload(); }
+    });
+  }
+
+  function gateByRegistration() {
+    return !!(window.Access && window.LESSON && Access.needsRegistration(window.LESSON.id));
+  }
+
   function renderLesson() {
     if (!window.LESSON) return missingLesson();
+    if (gateByRegistration()) return registrationWall();
     L = window.LESSON; BANK = window.QUESTION_BANK;
     document.title = L.title + ' — Unit ' + L.unit + ' Lesson ' + L.lessonNo + ' | ' + L.author;
     state = Progress.load(L.id);
@@ -958,6 +976,7 @@ window.MathPlatform = (function () {
 
   function renderHomework() {
     if (!window.LESSON) return missingLesson();
+    if (gateByRegistration()) return registrationWall();
     L = window.LESSON; BANK = window.QUESTION_BANK;
     var HW = L.homework;
     FIELDS = [];
@@ -1425,6 +1444,13 @@ window.MathPlatform = (function () {
         writeNum('wg:hwattempts:' + L.id, attemptNo);
         writeNum('wg:hwbest:' + L.id, newBest);
         track('hw', attemptNo > 1 ? 'محاولة ' + attemptNo : '');
+
+        /* He just gave his name and number on this form. Asking him for them
+           again at the next lesson's door would be asking twice for the same
+           thing — so this submission counts as his registration. */
+        if (window.Student && Student.registerFromHomework) {
+          Student.registerFromHomework(name, payload.student_phone);
+        }
 
         form.hidden = true;
         okMsg.hidden = false;

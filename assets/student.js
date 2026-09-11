@@ -54,13 +54,21 @@ window.Student = (function () {
 
   /* ------------------------------------------------------------ profile -- */
 
+  /* The stored record, whatever is in it. It may hold a name and a number but
+     no year — that is a visitor who arrived on a direct lesson link and
+     registered at the door without ever seeing «اختر مرحلتك». He is a real
+     student; he just has not picked a year yet. */
   function profile() {
     var p = readJSON(K_PROFILE, null);
-    if (!p || typeof p !== 'object') return null;
-    if (!p.year) return null;                 /* a profile without a year is not a profile */
-    return p;
+    return (p && typeof p === 'object') ? p : null;
   }
-  function hasProfile() { return !!profile(); }
+
+  /* Whether the first-visit screen has been answered. The year is what that
+     screen asks for, so the year is what decides it. */
+  function hasProfile() {
+    var p = profile();
+    return !!(p && p.year);
+  }
 
   function saveProfile(patch) {
     var p = profile() || { since: Date.now() };
@@ -74,6 +82,44 @@ window.Student = (function () {
     var p = profile();
     if (!p || !p.name) return '';
     return String(p.name).trim().split(/\s+/)[0];
+  }
+
+  /* --------------------------------------------------------- registration --
+
+     A PROFILE is not a REGISTRATION. The first-visit screen takes a name and
+     a year so the page can speak to a person instead of a browser; that is a
+     setting. Registration is the mobile number, and it is asked for only
+     after the student has had a whole lesson for free — value first, then
+     the ask. The two are deliberately different states. */
+
+  function registered() {
+    var p = profile();
+    return !!(p && p.phone && p.registeredAt);
+  }
+
+  function markRegistered(data) {
+    return saveProfile({
+      name: data.name,
+      phone: data.phone,
+      registeredAt: Date.now()
+    });
+  }
+
+  /* A student who submitted the first homework has already handed over his
+     name and number on that form. Asking again would be asking twice for the
+     same thing, so engine.js calls this at submit time. */
+  function registerFromHomework(name, phone) {
+    if (registered() || !phone) return;
+    markRegistered({ name: name || (profile() && profile().name) || '', phone: phone });
+  }
+
+  /* ------------------------------------------------------------- paywall -- */
+
+  /* One ping per unit per student: you want to know how many people stood in
+     front of the price, not how many times each of them refreshed. */
+  function paywallSeen(unitNo) { return !!readRaw('wg:paywall:' + unitNo, ''); }
+  function markPaywallSeen(unitNo) {
+    try { localStorage.setItem('wg:paywall:' + unitNo, String(Date.now())); } catch (e) {}
   }
 
   /* ----------------------------------------------------------- activity -- */
@@ -179,6 +225,28 @@ window.Student = (function () {
   function tracked(yearId) {
     var d = demo();
     return d ? [d].concat(lessons(yearId)) : lessons(yearId);
+  }
+
+  /* The lessons that actually exist, in the order a student meets them. This
+     is the list the registration gate counts against — a lesson that is only
+     listed («قريباً») is not a lesson he could have had for free. */
+  function built(yearId) {
+    return tracked(yearId).filter(function (l) { return l.data; });
+  }
+
+  /* How many built lessons come before this one. -1 for a lesson that is not
+     in the map at all, which the callers read as "do not block it".
+
+     The rank is counted inside the lesson's OWN year, found across the whole
+     map — not inside whatever year this browser happens to have picked. A
+     visitor who followed a direct link to lesson 1–2 has no year set yet, and
+     ranking him against an empty list would have opened the door to anyone
+     holding a URL. */
+  function rankOf(id) {
+    var loc = locate(id);
+    var list = built(loc ? loc.year.id : null);
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return i;
+    return -1;
   }
 
   /* Where a lesson sits in the map, searched across ALL years — the lesson
@@ -307,7 +375,10 @@ window.Student = (function () {
     profile: profile, hasProfile: hasProfile, saveProfile: saveProfile, firstName: firstName,
     log: log, activity: activity,
     lesson: lesson, lessons: lessons, year: year, locate: locate,
-    demo: demo, tracked: tracked,
+    demo: demo, tracked: tracked, built: built, rankOf: rankOf,
+    registered: registered, markRegistered: markRegistered,
+    registerFromHomework: registerFromHomework,
+    paywallSeen: paywallSeen, markPaywallSeen: markPaywallSeen,
     statusOf: statusOf, resume: resume, due: due, summary: summary,
     href: href, reset: reset
   };

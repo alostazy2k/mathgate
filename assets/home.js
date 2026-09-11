@@ -173,7 +173,8 @@
             '<p class="rs-ar">' + esc(demo.noteAr) + '</p>' +
             bar(st.pct) +
           '</div>' +
-          '<a class="cta" href="' + Student.href('lesson', demo.id) + '">' +
+          '<a class="cta" data-lesson="' + esc(demo.id) + '" ' +
+            'href="' + Student.href('lesson', demo.id) + '">' +
             (st.opened ? 'كمّل الدرس' : 'ابدأ الدرس') + ' →</a>');
       }
       return card('resume', 'كمّل من حيث وقفت',
@@ -188,7 +189,7 @@
         '<p class="rs-ar">' + esc(l.titleAr) + '</p>' +
         bar(s.pct) +
       '</div>' +
-      '<a class="cta" href="' + Student.href('lesson', l.id) + '">' +
+      '<a class="cta" data-lesson="' + esc(l.id) + '" href="' + Student.href('lesson', l.id) + '">' +
         (s.opened ? 'كمّل الدرس' : 'ابدأ الدرس') + ' →</a>');
   }
 
@@ -216,7 +217,8 @@
             '<div><strong>' + esc(l.title) + '</strong>' +
             '<span class="du-ar">' + esc(l.titleAr) + '</span></div>' +
           '</div>' +
-          '<a class="mini-cta" href="' + Student.href('homework', l.id) + '">' +
+          '<a class="mini-cta" data-lesson="' + esc(l.id) + '" ' +
+            'href="' + Student.href('homework', l.id) + '">' +
             (s.attempts ? 'كمّل الواجب' : 'افتح الواجب') + '</a>' +
         '</li>';
       }).join('') + '</ul>' +
@@ -257,8 +259,16 @@
             '<span class="ls-body"><span class="ls-title">' + esc(l.title) + '</span>' +
             '<span class="ls-ar">' + esc(l.titleAr) + '</span></span>' + tail;
 
+          /* A locked-by-price lesson is CLICKABLE on purpose: the click is how
+             the student learns what it costs, and how you learn that he stood
+             in front of the price. A silent dead row teaches nobody anything. */
+          if (stt === 'paid') {
+            return '<a class="ls paid" href="#" data-unit="' + esc(u.no) + '" ' +
+                   'data-unit-ar="' + esc(u.titleAr) + '">' + inner + '</a>';
+          }
           return clickable
-            ? '<a class="ls ' + stt + '" href="' + Student.href('lesson', l.id) + '">' + inner + '</a>'
+            ? '<a class="ls ' + stt + '" data-lesson="' + esc(l.id) + '" ' +
+              'href="' + Student.href('lesson', l.id) + '">' + inner + '</a>'
             : '<div class="ls ' + stt + '" aria-disabled="true">' + inner + '</div>';
         }).join('');
 
@@ -271,9 +281,15 @@
               '<span class="un-no">الوحدة ' + esc(u.no) + '</span>' +
               '<span class="un-title">' + esc(u.title) +
                 '<span class="un-ar">' + esc(u.titleAr) + '</span></span>' +
+              /* The price lives on the UNIT, so the unit's chip is what opens
+                 it. That matters while units 2–4 hold no recorded lessons yet:
+                 every lesson inside them still reads «قريباً», and without
+                 this chip the student would never learn there is a paid tier
+                 at all — and you would never learn he looked. */
               (u.free !== false
                 ? '<span class="un-chip free">مجاناً</span>'
-                : '<span class="un-chip">بالاشتراك</span>') +
+                : '<button type="button" class="un-chip pay" data-unit="' + esc(u.no) +
+                  '" data-unit-ar="' + esc(u.titleAr) + '">بالاشتراك</button>') +
               '<span class="un-count">' +
                 (built ? doneN + ' / ' + built : u.lessons.length + ' دروس') +
               '</span>' +
@@ -283,7 +299,7 @@
       });
     });
 
-    return card('map', 'خريطة الوحدات', html);
+    return card('map', 'خريطة الوحدات', Access.priceLineHtml() + html);
   }
 
   /* --- block 4 · ملخص الأداء --------------------------------------------- */
@@ -361,6 +377,7 @@
 
     root.innerHTML =
       head(p, y) +
+      Access.announcementHtml() +
       blockResume() +
       blockDue() +
       blockMap(y) +
@@ -368,12 +385,71 @@
       blockActivity() +
       '<footer><strong>Dr. Wessam Gouda</strong> · Mathematics</footer>';
 
+    wireDoors();
+
     mount('changeYear').addEventListener('click', function () {
       /* Changing the year keeps every lesson record — ids are year-prefixed,
          so nothing collides and nothing is thrown away. */
       Student.saveProfile({ year: null });
       location.reload();
     });
+  }
+
+  /* --------------------------------------------------------------- doors -- */
+
+  /* One delegated handler for every link on the page that might be stopped by
+     a door. Delegation rather than per-link wiring, because the page is
+     re-rendered wholesale after every state change and re-attaching listeners
+     each time is how listeners get lost. */
+  function wireDoors() {
+    root.addEventListener('click', function (e) {
+      var paid = e.target.closest('a.ls.paid, .un-chip.pay');
+      if (paid) {
+        e.preventDefault();
+        e.stopPropagation();       /* the chip sits inside <summary> */
+        showPanel(function (host) {
+          Access.renderPaywall(host, {
+            unitNo: paid.getAttribute('data-unit'),
+            unitTitleAr: paid.getAttribute('data-unit-ar')
+          });
+        });
+        return;
+      }
+
+      var link = e.target.closest('[data-lesson]');
+      if (!link) return;
+      var id = link.getAttribute('data-lesson');
+      if (!Access.needsRegistration(id)) return;    /* let the link do its job */
+
+      e.preventDefault();
+      var href = link.getAttribute('href');
+      showPanel(function (host) {
+        Access.renderRegistration(host, {
+          lessonId: id,
+          onDone: function () { location.href = href; }
+        });
+      });
+    });
+  }
+
+  /* Takes over the page with one panel and a way back. Replacing the page
+     rather than opening a modal is deliberate: a door is a place you are
+     standing, not a thing floating over where you were. */
+  function showPanel(draw) {
+    root.innerHTML = '<div class="panel-page">' +
+      '<button type="button" class="linkish back" id="panelBack">← رجوع لصفحتي</button>' +
+      '<div id="panelHost"></div></div>';
+    draw(mount('panelHost'));
+    mount('panelBack').addEventListener('click', paint);
+  }
+
+  /* Everything that has to happen every time the page is drawn. The DEV bar is
+     not in here: it lives on <body>, outside the re-rendered root. */
+  function paint() {
+    renderPage();
+    buildStamp();
+    demoBanner();
+    devBar();          /* rebuilt, not left stale — see the note on devBar */
   }
 
   /* ------------------------------------------------------------ storage -- */
@@ -404,15 +480,88 @@
     root.insertBefore(d, root.firstChild);
   }
 
+  /* The author's panel.
+
+     It is called «سجل الطالب على الجهاز ده» and NOT «إحصائيات», because that
+     is exactly what it is. This page is a static file with no server, so it
+     can only ever see the browser it is running in. The real counts — how
+     many registered, how many stood in front of the price — are in your
+     inbox, one search per tag, until PLATFORM_CONFIG.backend is switched on.
+     Calling a single-browser record "statistics" would be the most expensive
+     kind of wrong number: the confident kind. */
   function devBar() {
     if (!DEV) return;
+
+    /* Rebuilt on every paint. It sits on <body>, outside the re-rendered root,
+       so without this it would survive a re-render still showing the numbers
+       it was born with — a panel whose whole job is telling you the truth,
+       quietly lying. */
+    var old = document.querySelector('.devpanel');
+    var wasOpen = !!(old && old.querySelector('.dp-body') && !old.querySelector('.dp-body').hidden);
+    if (old) old.parentNode.removeChild(old);
+
+    var s = Student.summary();
+    var p = Student.profile() || {};
+    var reg = Student.registered();
+
+    var walls = [];
+    try {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k.indexOf('wg:paywall:') === 0) walls.push(k.slice(11));
+      });
+    } catch (e) {}
+
     var bar = document.createElement('div');
-    bar.className = 'devbar';
-    bar.innerHTML = '<span>DEV</span><button type="button" id="devReset">إعادة تعيين حالة الطالب</button>';
+    bar.className = 'devpanel';
+    bar.innerHTML =
+      '<button type="button" class="dp-toggle" id="dpToggle">DEV</button>' +
+      '<div class="dp-body" id="dpBody" hidden>' +
+
+        '<h4>سجل الطالب على الجهاز ده</h4>' +
+        '<p class="dp-warn">ده متصفح واحد، مش إحصائية. الأعداد الحقيقية في بريدك: ' +
+          'ابحث عن <code>[register]</code> و <code>[paywall]</code>.</p>' +
+        '<dl class="dp-list">' +
+          row('مسجّل', reg ? 'أيوه — ' + esc(p.phone || '') : 'لأ') +
+          row('الاسم', esc(p.name || '—')) +
+          row('المرحلة', esc((Student.year(p.year) || {}).label || '—')) +
+          row('دروس بدأها', s.started + ' / ' + s.lessonsBuilt) +
+          row('واجبات مسلّمة', String(s.finished)) +
+          row('متوسط الكويزات', s.quizPct === null ? '—' : s.quizPct + '%') +
+          row('متوسط الواجبات', s.hwAverage === null ? '—' : s.hwAverage + '%') +
+          row('وقف قدام سعر', walls.length ? 'الوحدة ' + walls.join('، ') : 'لأ') +
+        '</dl>' +
+
+        '<h4>حالة الخدمات</h4>' +
+        '<dl class="dp-list">' +
+          Access.services().map(function (x) {
+            return row(esc(x.ar), x.on
+              ? '<span class="dp-on">مفعّلة</span>'
+              : '<span class="dp-off">متوقفة — محتاجة سيرفر</span>');
+          }).join('') +
+        '</dl>' +
+        (Access.backendOff()
+          ? '<p class="dp-warn">الأربعة دول مبنيين وجاهزين. بيتفعّلوا بتغيير ' +
+            '<code>backend</code> في <code>config.js</code> من <code>null</code> لـ ' +
+            '<code>\'supabase\'</code>.</p>'
+          : '') +
+
+        '<button type="button" class="dp-reset" id="devReset">إعادة تعيين حالة الطالب</button>' +
+      '</div>';
+
     document.body.appendChild(bar);
+    if (wasOpen) document.getElementById('dpBody').hidden = false;
+
+    document.getElementById('dpToggle').addEventListener('click', function () {
+      var b = document.getElementById('dpBody');
+      b.hidden = !b.hidden;
+    });
     document.getElementById('devReset').addEventListener('click', function () {
       Student.reset(); location.reload();
     });
+  }
+
+  function row(k, v) {
+    return '<div class="dp-row"><dt>' + k + '</dt><dd>' + v + '</dd></div>';
   }
 
   function buildStamp() {
@@ -438,11 +587,8 @@
 
     if (storageWarning()) { devBar(); return; }
 
-    if (!Student.hasProfile()) renderChooser();
-    else { renderPage(); buildStamp(); }
-
-    demoBanner();
-    devBar();
+    if (!Student.hasProfile()) { renderChooser(); demoBanner(); devBar(); }
+    else paint();
   }
 
   window.addEventListener('DOMContentLoaded', boot);
