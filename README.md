@@ -9,24 +9,42 @@ Grade 1 Secondary · Egyptian Baccalaureate · Unit 1
 ```
 platform/
 ├── robots.txt           preview only — delete it at launch
-├── index.html           landing page — the entry point when the site is published
+├── index.html           THE STUDENT'S PAGE — the entry point, holds no content itself
 ├── start-server.bat     double-click to run the site locally (Windows)
 ├── lesson.html          template — identical for every lesson, never edit per lesson
 ├── homework.html        template — identical for every lesson, never edit per lesson
 ├── assets/
 │   ├── theme.css        all styling for the whole platform (one file, 60 lessons)
 │   ├── engine.js        renderer + auto-grading + progress (one file, 60 lessons)
+│   ├── student.js       THE STUDENT RECORD — the only file that touches storage
+│   ├── home.js          draws index.html: first-visit screen + the five blocks
 │   ├── config.js        site-wide settings (Web3Forms key, video base URL)
 │   └── favicon.svg      site icon
 ├── data/
+│   ├── course.js        THE COURSE MAP — years, units, lessons, free/locked flags
 │   ├── questions.js     the question bank — every question, written once
-│   └── u1-l1.js         lesson 1 content — THE ONLY FILE YOU WRITE PER LESSON
+│   └── u1-l1.js         the trial lesson (Real Functions) — not syllabus content
 └── tools/
     └── hash.html        generates answer hashes (internal tool — do not publish)
 ```
 
-**The rule:** `lesson.html`, `homework.html`, `theme.css` and `engine.js` never change when
-you add a lesson. A new lesson is a new file in `data/`, plus new entries in `questions.js`.
+**The rule:** `lesson.html`, `homework.html`, `theme.css`, `engine.js`, `student.js` and
+`home.js` never change when you add a lesson. A new lesson is a new file in `data/`, its
+questions in `questions.js`, and one line switched on in `data/course.js`.
+
+### The four layers, and why they are separate
+
+| Layer | File | Changes when |
+|---|---|---|
+| What exists in the course | `data/course.js` | you add or re-order a lesson |
+| What one lesson contains | `data/<id>.js` | you record that lesson |
+| What the student has done | `assets/student.js` | **never** — until storage moves to Supabase |
+| What he sees | `home.js` / `engine.js` | you change the interface |
+
+`student.js` is the important one. It is the only file in the platform that reads or writes
+`localStorage`. Every page asks it questions (`Student.lesson(id)`, `Student.due()`,
+`Student.summary()`) and none of them knows where the answer comes from. The day accounts
+move to Supabase, that one file is rewritten and no screen is touched.
 
 ---
 
@@ -41,10 +59,10 @@ Or by hand:
 ```bash
 cd platform
 py -m http.server 8080      # python3 on Mac/Linux
-# then open http://localhost:8080/lesson.html
+# then open http://localhost:8080/
 ```
 
-### Do not open the files by double-clicking `lesson.html`
+### Do not open the files by double-clicking `index.html`
 
 A page opened as `file:///…` is treated by the browser as an untrusted, unique origin, so
 **`localStorage` is blocked**. The page still renders, but progress, quiz scores and the
@@ -58,19 +76,79 @@ same wall.
 
 ---
 
+## The student's page
+
+`index.html` is no longer a landing page for one lesson. It is the student's own page, and
+it is the first thing he sees.
+
+**First visit, once and only once:** his name, and his year — three cards, all three years
+shown, the two that are not ready marked «قريباً». The year is a setting, not a question
+asked at every entry; after that he lands straight on his page. «تغيير المرحلة» in the
+header re-opens the choice, and changes nothing else: lesson ids carry their year
+(`s1-u1-l4`), so three years can never collide in one browser and nothing is thrown away.
+
+**The page itself, five blocks in this order:**
+
+| Block | What decides it |
+|---|---|
+| كمّل من حيث وقفت | the first lesson he has started and not finished, else the first he can open |
+| الواجبات المستحقة | lessons he **opened** and has not sent — never a lesson he has not seen |
+| خريطة الوحدات | the whole year, units collapsible, every lesson carrying its own state |
+| ملخص الأداء | واجبات مسلّمة · دروس بدأها · متوسط الكويزات |
+| آخر النشاط | the last events: lesson opened, quiz solved, homework sent |
+
+A lesson in the map is in exactly one of six states: **قريباً** (not recorded yet),
+**بالاشتراك** (its unit is not free), **سلّم اللي قبله** (the gate), **ابدأ**, a percentage
+(in progress), or **تم التسليم ✓**.
+
+### The homework average is yours, not his
+
+`Student.summary()` computes `hwAverage`, and the page renders it **only in DEV view**
+(`?dev=1`, or on localhost). A student who watches a running average starts protecting it
+instead of learning — which is the exact opposite of «أعلى محاولة هي المعتمدة», the rule
+that makes a weak attempt cost nothing. He sees how many he handed in; you see how he did.
+
+### What is stored, and where
+
+Everything lives under the `wg:` namespace in the student's own browser, so the DEV reset
+still clears the lot in one sweep:
+
+```
+wg:student           {name, year, since}          new in v4.0
+wg:activity          the last 30 events           new in v4.0
+wg:progress:<id>     {seg, ex, quiz, parts}       `parts` is new in v4.0
+wg:hwsent:<id>       the gate flag                unchanged since v3
+wg:hwattempts:<id>   attempt counter              unchanged since v3
+wg:hwbest:<id>       highest attempt, percent     unchanged since v3
+```
+
+The last three are read, never renamed: a student who did lesson work on v3.7 opens v4.0
+and finds every bit of it still there, his homework still submitted and his gate still open.
+
+---
+
 ## Putting it on the internet
 
 Free, no build step, works with these files exactly as they are.
 
-### Netlify Drop — the fastest
+### GitHub Pages — the one that opens in Egypt
 
-1. Open **app.netlify.com/drop**.
-2. Drag the whole **`platform` folder** onto the page — the folder, not the files inside it.
-3. You get a live URL in about thirty seconds. Send it to anyone.
-4. To publish an update: drag the folder again onto the same site (*Deploys → Drag and drop*).
+The live site is **alostazy2k.github.io/mathgate**, from the repo `alostazy2k/mathgate`.
+That address was confirmed to open from both Egypt and Saudi Arabia — `netlify.app` does
+not open from Egypt, which is why the site moved.
 
-`index.html` is the entry point, so the bare link works on its own — nobody has to type
-`/lesson.html`.
+To publish an update:
+
+1. Open the repo → **Add file → Upload files**.
+2. Drag in **the files you changed** (keeping their folders — `assets/…`, `data/…`).
+3. **Commit changes.** GitHub Pages redeploys in about a minute.
+
+`index.html` is the entry point, so the bare link works on its own — nobody has to type a
+page name.
+
+**When you upload a changed `engine.js`, `theme.css`, `student.js` or `home.js`, bump the
+`?v=` number in all three HTML pages too** — otherwise returning students keep the old file
+out of their cache and you will be looking at a bug that no longer exists.
 
 ### Before you send the link to someone
 
@@ -102,15 +180,32 @@ repository or an account first, which is why Netlify Drop is the quickest for a 
 
 ---
 
-## How to add lesson 1–2
+## How to add a lesson
 
-1. `cp data/u1-l1.js data/u1-l2.js` and edit the content.
+Say you have just recorded **1–4 · إشارة الدالة**, which is already listed in the map as
+`s1-u1-l4`.
+
+1. `cp data/u1-l1.js data/s1-u1-l4.js` and write the content. Set `id: 's1-u1-l4'` inside it
+   — the id in the file must match the file name.
 2. Add its questions to `data/questions.js` with new ids (`q-210`, `h-301`, …).
 3. Generate the answer hashes in `tools/hash.html` and paste them in.
-4. `cp lesson.html u1/l2/lesson.html` (or change the one data `<script src>` line).
-5. Point `next.href` of lesson 1–1 at lesson 1–2.
+4. In `data/course.js`, change that lesson's `data: null` to `data: 's1-u1-l4'`.
 
-Nothing else.
+That is the whole procedure. Nothing else. No HTML file is copied, no link is repointed —
+`lesson.html?id=s1-u1-l4` already works, the lesson appears in the map the moment step 4 is
+saved, and the previous lesson's *next* button starts pointing at it by itself.
+
+### Adding a lesson that is not in the map yet
+
+Add the entry to the right unit in `data/course.js` (id, `no`, `title`, `titleAr`, `data`)
+and it is listed. A lesson with `data: null` shows as **قريباً** and cannot be opened —
+which is exactly how all seventeen Term 1 lessons sit right now.
+
+### The URL scheme
+
+`lesson.html?id=<lesson id>` and `homework.html?id=<lesson id>`. One template file serves
+every lesson in the course; `Student.href()` is the single function that builds these links,
+so the day you want `themathgate.com/u1/l4` instead, that one function changes.
 
 ---
 
@@ -181,8 +276,10 @@ arrives in Step 4 below, with student accounts.
 | 3c | Completion panel, Arabic validation, submit flow | done — v3 |
 | 3d | Retry link + attempt counter | done — v3.4 |
 | 5a | Landing page, demo mode, deploy guide | done — v3.6 |
-| 4 | Record Unit 1: 8 lessons × 5 segments | next |
-| 5 | Publish free, on a domain, collecting name + mobile | after 4 |
+| 5b | Move off Netlify to GitHub Pages (Egypt access) | done |
+| 6a | Platform shell: course map, student record, personal page | done — v4.0 |
+| 4 | Record Unit 1: 5 lessons, starting with 1–4 إشارة الدالة | next |
+| 5 | Publish free, on the domain, collecting name + mobile | after 4 |
 | 6 | Move video to Bunny Stream (signed URLs + watermark) | during term |
 | 7 | Student accounts + server-side grading (Supabase) | during term |
 | 8 | Payments — Paymob + Fawry — open paid access from Unit 2 | Oct / Nov |
@@ -260,7 +357,7 @@ number that matters is the one stamped on the emails you keep.
 
 ## Which version am I looking at?
 
-The bottom of every page prints a build stamp: **`engine v3.7 · u1-l1`**.
+The bottom of every page prints a build stamp: **`engine v4.0 · u1-l1`**.
 If that number does not match the release you just extracted, the browser is serving a
 cached file or you opened an older `platform/` folder.
 
@@ -288,6 +385,31 @@ keeps what you submitted yesterday, no matter how many times you re-extract the 
 ---
 
 ## Changelog
+
+### v4.0 — the platform shell (stage 6-أ)
+
+The platform stops being one lesson and becomes a course.
+
+- **`data/course.js`** — the whole Term 1 map of Grade 1 Secondary, as it stands in the
+  ministry book: 4 units, 17 lessons, each with its Arabic and English title. Unit 1 is
+  marked free; units 2–4 are marked subscription. Every lesson is `data: null` until it is
+  recorded, so the student sees the full year from day one and can open only what exists.
+- **`assets/student.js`** — one small API over everything the platform knows about a
+  student, and the only file that touches storage. Swapping it for Supabase later changes
+  no screen.
+- **`index.html` is now the student's page** — five blocks: كمّل من حيث وقفت ·
+  الواجبات المستحقة · خريطة الوحدات · ملخص الأداء · آخر النشاط.
+- **A first-visit screen** asks for the name and the year, once, and never again. The name
+  is then filled into every homework form automatically — which also stops the same student
+  reaching your inbox spelled three different ways.
+- **One lesson template for the whole course.** `lesson.html?id=…` picks the data file, so a
+  new lesson never copies an HTML file again. An id with no data file gets a proper Arabic
+  «الدرس ده لسه مش متاح» page with a way back, not a blank screen.
+- **The next-lesson button now comes from the course map**, not from the lesson file. Re-order
+  a unit in `course.js` and every button follows.
+- The homework average is computed but shown **only in DEV view** — it is your number.
+- `engine.js` keeps its grading, gate, retry and attempt logic untouched. The only lines
+  added to it are three activity hooks and the lesson-parts stamp.
 
 ### v3.7 — preview build
 - `demoMode: true` — homework is graded but never sent.

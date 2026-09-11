@@ -3,7 +3,7 @@ REM ===========================================================================
 REM  Dr. Wessam Gouda - Math Platform
 REM  Double-click this file to run the site properly on http://localhost
 REM
-REM  Why this exists: opening lesson.html directly (file://) makes the browser
+REM  Why this exists: opening index.html directly (file://) makes the browser
 REM  treat the page as an untrusted origin and block localStorage, so progress,
 REM  quiz scores and the homework gate silently stop working. Serving over
 REM  http://localhost behaves exactly like the real site will.
@@ -13,7 +13,7 @@ REM ===========================================================================
 
 cd /d "%~dp0"
 set "PORT=8080"
-set "PAGE=lesson.html"
+set "PAGE=index.html"
 
 REM --- find Python: the py launcher first, then plain python -----------------
 REM  (written flat, not inside parentheses: %errorlevel% inside a block is
@@ -34,8 +34,9 @@ echo   ============================================================
 echo      Dr. Wessam Gouda  -  Math Platform
 echo   ============================================================
 echo.
-echo      Lesson     http://localhost:%PORT%/lesson.html
-echo      Homework   http://localhost:%PORT%/homework.html
+echo      Your page  http://localhost:%PORT%/
+echo      Lesson     http://localhost:%PORT%/lesson.html?id=u1-l1
+echo      Homework   http://localhost:%PORT%/homework.html?id=u1-l1
 echo.
 echo      Add  ?dev=1  to either URL for the reset button.
 echo.

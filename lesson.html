@@ -10,12 +10,16 @@
   LESSON PAGE TEMPLATE
   This file is identical for every lesson in the course. It contains no
   content at all — only the empty containers the engine fills.
-  To publish a new lesson: change the two data <script> tags below.
+
+  Which lesson it shows comes from the URL:  lesson.html?id=s1-u1-l4
+  with `u1-l1` as the default, so old links keep working. Nothing in this
+  file changes when a lesson is added — only a new file in data/ and a line
+  in data/course.js.
   ==========================================================================
 -->
 
 <meta name="robots" content="noindex, nofollow" />
-<link rel="icon" href="assets/favicon.svg?v=3.7" type="image/svg+xml" />
+<link rel="icon" href="assets/favicon.svg?v=4.0" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -28,12 +32,14 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
 
-<link rel="stylesheet" href="assets/theme.css?v=3.7" />
+<link rel="stylesheet" href="assets/theme.css?v=4.0" />
 </head>
 
 <body>
 
 <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+<a class="home-link" href="index.html">صفحتي <span aria-hidden="true">←</span></a>
 
 <div class="wrap">
 
@@ -66,13 +72,27 @@
   </div>
 </div>
 
-<!-- ===== the only two lines that change per lesson ===== -->
-<script src="assets/config.js?v=3.7"></script>
-<script src="data/questions.js?v=3.7"></script>
-<script src="data/u1-l1.js?v=3.7"></script>
-<!-- ==================================================== -->
+<script src="assets/config.js?v=4.0"></script>
+<script src="data/course.js?v=4.0"></script>
+<script src="assets/student.js?v=4.0"></script>
+<script src="data/questions.js?v=4.0"></script>
 
-<script src="assets/engine.js?v=3.7"></script>
+<!-- ===== the lesson's own data file, picked by ?id= =====================
+     document.write is deliberate here. It is the one technique that keeps a
+     dynamically chosen script in the parser's execution order on a static
+     site with no build step — so engine.js below still finds window.LESSON
+     already defined, exactly as it did when this line was hard-coded.
+     The id is filtered to [A-Za-z0-9_-] so it can never escape data/.
+     ===================================================================== -->
+<script>
+  (function () {
+    var m = /[?&]id=([A-Za-z0-9_-]+)/.exec(location.search);
+    var id = m ? m[1] : 'u1-l1';
+    document.write('<scr' + 'ipt src="data/' + id + '.js?v=4.0"><\/scr' + 'ipt>');
+  })();
+</script>
+
+<script src="assets/engine.js?v=4.0"></script>
 <script>
   window.addEventListener('load', function () { MathPlatform.renderLesson(); });
 </script>

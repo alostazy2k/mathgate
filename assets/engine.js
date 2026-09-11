@@ -151,6 +151,29 @@ window.MathPlatform = (function () {
     }
   };
 
+  /* ------------------------------------------------------- activity feed */
+
+  /* The one line in the engine that talks to the student record. Everything
+     else about the student — progress, gate, attempts — is written through
+     the keys Student.js reads. Guarded, so a page that forgot to load
+     student.js degrades to a lesson that simply does not log. */
+  function track(type, label) {
+    if (window.Student && L && L.id) Student.log(type, L.id, label || '');
+  }
+
+  /* Where this lesson sits in data/course.js, or null for the trial lesson
+     that is not in the map. */
+  function place() {
+    return (window.Student && Student.locate) ? Student.locate(L.id) : null;
+  }
+
+  function lessonUrl(id) {
+    return (window.Student && Student.href) ? Student.href('lesson', id) : 'lesson.html?id=' + id;
+  }
+  function homeworkUrl(id) {
+    return (window.Student && Student.href) ? Student.href('homework', id) : 'homework.html?id=' + id;
+  }
+
   /* --------------------------------------------------------- Arabic notes */
 
   /* ------------------------------------------------- storage availability */
@@ -679,6 +702,7 @@ window.MathPlatform = (function () {
     state.quiz = { score: score, total: total };
     persist();
     updateProgress();
+    track('quiz', score + '/' + total);
   }
 
   /* --- next step + homework gate ----------------------------------------- */
@@ -692,24 +716,50 @@ window.MathPlatform = (function () {
      It becomes a real lock in Step 7, when accounts move to the server. */
   function homeworkSent() { return homeworkSentFor(L.id); }
 
+  /* Where the student goes after this lesson is decided by data/course.js
+     first, and by the lesson's own `next` only as a fallback. Re-ordering a
+     unit in the course map therefore re-points every lesson's button without
+     a single lesson file being touched. */
+  var NEXT = null;
+
+  function nextStep() {
+    var p = place();
+    if (p) {
+      if (p.next && p.next.data)
+        return { href: lessonUrl(p.next.id), ready: true,
+                 label: 'Next lesson — ' + p.next.title };
+      if (p.next)
+        return { href: 'index.html', ready: false,
+                 label: 'الدرس الجاي لسه بيتجهّز — ارجع لصفحتك' };
+      return { href: 'index.html', ready: true, label: 'خلصت آخر درس — ارجع لصفحتك' };
+    }
+    var n = L.next || {};
+    return { href: n.href || 'index.html', ready: true, label: n.label || 'ارجع لصفحتك' };
+  }
+
   function buildNext() {
     var host = mount('next');
-    var done = L.lessonIndex, all = L.unitLessons;
+    var p = place();
+    var done = p ? p.entry.indexInUnit : L.lessonIndex;
+    var all  = p ? p.entry.unitLessons : L.unitLessons;
+    var uNo  = p ? p.entry.unitNo : L.unit;
+    var uTit = p ? p.entry.unitTitle : L.unitTitle;
+    NEXT = nextStep();
 
     host.innerHTML =
       '<div class="unit-progress">' +
-        '<div class="up-label"><span>Unit ' + L.unit + ' — ' + esc(L.unitTitle) + '</span>' +
+        '<div class="up-label"><span>Unit ' + uNo + ' — ' + esc(uTit) + '</span>' +
         '<span>' + done + ' / ' + all + '</span></div>' +
         '<div class="up-track"><div class="up-fill" style="width:' +
         (done / all * 100) + '%"></div></div>' +
         '<div class="ar-inline" style="font-size:.85rem;color:var(--ink-soft);margin-top:8px">' +
-        'أنجزت ' + done + ' من ' + all + ' دروس في الوحدة ' + L.unit + '</div>' +
+        'أنجزت ' + done + ' من ' + all + ' دروس في الوحدة ' + uNo + '</div>' +
       '</div>' +
       '<div class="next-actions">' +
-        '<a class="cta" id="hwCta" href="' + esc(L.homeworkHref || 'homework.html') + '">' +
+        '<a class="cta" id="hwCta" href="' + esc(homeworkUrl(L.id)) + '">' +
           'Go to homework page <span class="ar-inline">— الانتقال إلى صفحة الواجب</span> →</a>' +
-        '<a class="cta secondary" id="nextCta" href="' + esc(L.next.href) + '">' +
-          esc(L.next.label) + ' →</a>' +
+        '<a class="cta secondary" id="nextCta" href="' + esc(NEXT.href) + '">' +
+          esc(NEXT.label) + ' →</a>' +
         '<div class="gate-note" id="gateNote"></div>' +
       '</div>';
 
@@ -729,7 +779,7 @@ window.MathPlatform = (function () {
       nextBtn.classList.remove('locked');
       nextBtn.classList.remove('secondary');
       nextBtn.removeAttribute('aria-disabled');
-      nextBtn.href = L.next.href;
+      nextBtn.href = (NEXT || nextStep()).href;
       hwBtn.classList.add('secondary');
       hwBtn.innerHTML = 'Homework <span class="ar-inline">— تم التسليم</span> ✓';
       note.innerHTML = '<span class="ar-inline">تم تسليم الواجب. الدرس التالي مفتوح.</span>';
@@ -754,6 +804,13 @@ window.MathPlatform = (function () {
     var done = Object.keys(state.seg || {}).length +
                Object.keys(state.ex || {}).length +
                (state.quiz ? 1 : 0);
+
+    /* Stamp how many pieces this lesson has into the student's own record.
+       The personal page has to show a progress percent for every lesson
+       without loading seventeen lesson data files to learn their sizes —
+       this one number is what lets Student.lesson(id) do the arithmetic. */
+    if (state.parts !== total) { state.parts = total; persist(); }
+
     var bar = document.getElementById('progressFill');
     if (bar) bar.style.width = Math.min(done / total * 100, 100) + '%';
   }
@@ -785,11 +842,29 @@ window.MathPlatform = (function () {
     });
   }
 
+  /* A lesson id that has no data file — a typo in a link, or a lesson that is
+     listed in the course map but not recorded yet. A blank white page is the
+     worst possible answer; say which lesson was asked for and show the way
+     back. */
+  function missingLesson() {
+    var m = /[?&]id=([A-Za-z0-9_-]+)/.exec(location.search);
+    var wrap = document.querySelector('.wrap');
+    if (!wrap) return;
+    wrap.innerHTML =
+      '<div class="storage-warn">' +
+        '<span class="sw-title">الدرس ده لسه مش متاح</span>' +
+        '<p>مفيش محتوى مسجّل للدرس <code>' + esc(m ? m[1] : '—') + '</code> لحد دلوقتي.</p>' +
+        '<p class="sw-fix"><a class="cta" href="index.html">ارجع لصفحتك →</a></p>' +
+      '</div>';
+  }
+
   function renderLesson() {
+    if (!window.LESSON) return missingLesson();
     L = window.LESSON; BANK = window.QUESTION_BANK;
     document.title = L.title + ' — Unit ' + L.unit + ' Lesson ' + L.lessonNo + ' | ' + L.author;
     state = Progress.load(L.id);
     lessonRoot = document.body;
+    track('open');
 
     demoBanner();
     storageWarning();
@@ -882,6 +957,7 @@ window.MathPlatform = (function () {
   }
 
   function renderHomework() {
+    if (!window.LESSON) return missingLesson();
     L = window.LESSON; BANK = window.QUESTION_BANK;
     var HW = L.homework;
     FIELDS = [];
@@ -895,6 +971,14 @@ window.MathPlatform = (function () {
       '<p class="author">' + L.author + '</p>';
 
     devTools();
+
+    /* The name was given once, on the first visit, so it is filled in here.
+       Re-typing it on every homework is friction — and it is the reason two
+       submissions from the same student can reach you spelled two different
+       ways, which makes «أعلى محاولة» impossible to apply. */
+    var prof = window.Student ? Student.profile() : null;
+    var nameInput = document.getElementById('sName');
+    if (prof && prof.name && nameInput && !nameInput.value) nameInput.value = prof.name;
 
     /* A homework already sent: say so plainly and open the road forward,
        instead of leaving a dead disabled button with no explanation. */
@@ -1225,7 +1309,8 @@ window.MathPlatform = (function () {
   }
 
   function nextLessonCta() {
-    return '<a class="cta" href="' + esc(L.next.href) + '">' + esc(L.next.label) + ' →</a>';
+    var n = nextStep();
+    return '<a class="cta" href="' + esc(n.href) + '">' + esc(n.label) + ' →</a>';
   }
 
   function showAlreadySent(badCode) {
@@ -1243,7 +1328,7 @@ window.MathPlatform = (function () {
       'التسليم مرة واحدة بس لكل درس، والدرس التالي مفتوح لك. ' +
       'لو محتاج تعيد التسليم لأي سبب، كلّم الدكتور وسام وهيبعتلك رابط محاولة جديدة.</div>' +
       '<div class="ok-actions">' + nextLessonCta() +
-      '<a class="cta secondary" href="' + esc(L.lessonHref || 'lesson.html') + '">' +
+      '<a class="cta secondary" href="' + esc(lessonUrl(L.id)) + '">' +
       '← ارجع للدرس</a></div>';
   }
 
@@ -1339,6 +1424,7 @@ window.MathPlatform = (function () {
         try { localStorage.setItem('wg:hwsent:' + L.id, '1'); } catch (e) {}
         writeNum('wg:hwattempts:' + L.id, attemptNo);
         writeNum('wg:hwbest:' + L.id, newBest);
+        track('hw', attemptNo > 1 ? 'محاولة ' + attemptNo : '');
 
         form.hidden = true;
         okMsg.hidden = false;
@@ -1352,7 +1438,7 @@ window.MathPlatform = (function () {
             : 'وصل واجبك بنجاح. الدرجة والرد على السؤال المقالي هيوصلوك قريب.') +
           (attemptNo > 1 ? ' المعتمد هو أعلى درجة بين محاولاتك.' : '') + '</div>' +
           '<div class="ok-actions">' + nextLessonCta() +
-          '<a class="cta secondary" href="' + esc(L.lessonHref || 'lesson.html') + '">' +
+          '<a class="cta secondary" href="' + esc(lessonUrl(L.id)) + '">' +
           '← ارجع للدرس</a></div>';
         okMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch (err) {

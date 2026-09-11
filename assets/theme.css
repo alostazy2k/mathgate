@@ -127,53 +127,248 @@ button:focus-visible, input:focus-visible, a:focus-visible, textarea:focus-visib
 .katex-display { margin: 0.9em 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
 
 /* ==========================================================================
-   LANDING PAGE (index.html)
+   THE STUDENT'S PAGE  (index.html)  ·  v4.0
+   --------------------------------------------------------------------------
+   This is the one screen whose first language is Arabic, so it is RTL by
+   default and every English title inside it is flipped back with
+   `direction: ltr` on its own element. That is the same rule the lesson pages
+   follow in the opposite direction.
+   The old landing page (a single hard-coded lesson) lived here and is gone —
+   index.html has no content of its own any more.
    ========================================================================== */
-.home { max-width: 720px; }
-.home-head { text-align: center; padding-bottom: 34px; }
-.home-mark { width: 72px; margin: 0 auto 22px; }
-.home-mark svg { width: 100%; height: auto; display: block; }
-.home .eyebrow {
-  font-family: var(--f-mono); font-size: .82rem; color: var(--teal-dark);
-  background: var(--teal-tint); display: inline-block; padding: 5px 14px;
-  border-radius: 100px; margin-bottom: 16px; direction: ltr;
-}
-.home h1 {
-  font-family: var(--f-display); font-weight: 600; font-size: 2.8rem;
-  line-height: 1.14; margin-bottom: 12px; direction: ltr; text-wrap: balance;
-}
-.home-lede {
-  color: var(--ink-soft); font-size: 1.08rem; max-width: 46ch;
-  margin: 0 auto 22px; direction: ltr;
-}
-.home .ar-note { text-align: right; max-width: 52ch; margin-inline: auto; }
-@media (max-width: 620px) { .home h1 { font-size: 2.1rem; } }
 
-.home-actions { display: grid; gap: 14px; }
-.home-card {
-  display: flex; align-items: center; gap: 18px;
-  background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius-m); padding: 20px 24px;
-  text-decoration: none; color: var(--ink);
-  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+.wrap.home { max-width: 840px; font-family: var(--f-ar); }
+
+/* ---------- first visit: «اختر مرحلتك» ---------- */
+
+.onb { max-width: 560px; margin: 0 auto; text-align: center; }
+.onb-mark { width: 70px; margin: 0 auto 20px; }
+.onb-mark svg { width: 100%; height: auto; display: block; }
+.onb h1 { font-family: var(--f-ar); font-weight: 600; font-size: 1.9rem; margin-bottom: 10px; }
+.onb-lede { color: var(--ink-soft); font-size: .95rem; margin-bottom: 6px; }
+
+.onb-step {
+  display: flex; align-items: center; gap: 10px;
+  margin: 28px 0 12px; font-weight: 600; font-size: .95rem;
 }
-.home-card:hover {
-  border-color: var(--teal); box-shadow: var(--shadow-hover); transform: translateY(-1px);
-}
-.hc-num {
-  flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%;
-  background: var(--teal); color: #fff;
-  font-family: var(--f-display); font-weight: 600; font-size: 1.05rem;
+.onb-num {
+  flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--teal); color: #fff; font-family: var(--f-mono); font-size: .8rem;
   display: flex; align-items: center; justify-content: center;
 }
-.hc-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.hc-title { font-family: var(--f-display); font-weight: 600; font-size: 1.2rem; direction: ltr; text-align: left; }
-.hc-ar { font-family: var(--f-ar); font-size: .9rem; color: var(--ink-soft); direction: rtl; text-align: right; }
-.hc-go { font-size: 1.3rem; color: var(--line-strong); flex: 0 0 auto; }
-.home-card:hover .hc-go { color: var(--teal); }
-@media (max-width: 520px) {
-  .home-card { padding: 16px 18px; gap: 14px; }
-  .hc-title { font-size: 1.05rem; }
+.onb-field { text-align: right; }
+.onb-field input {
+  width: 100%; font: inherit; font-family: var(--f-ar);
+  padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-s);
+  background: var(--surface); color: var(--ink);
+}
+.onb-field input:focus { outline: 2px solid var(--teal); outline-offset: 1px; border-color: var(--teal); }
+.onb-hint { font-size: .8rem; color: var(--ink-soft); margin-top: 7px; }
+
+.onb-years { display: grid; gap: 10px; }
+.onb-year {
+  display: flex; align-items: center; gap: 12px; text-align: right;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-m);
+  padding: 14px 18px; cursor: pointer; font: inherit; font-family: var(--f-ar); color: var(--ink);
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.onb-year:hover { border-color: var(--teal); }
+.onb-year.picked { border-color: var(--teal); background: var(--teal-tint); box-shadow: var(--shadow); }
+.onb-year.soon { opacity: .68; }
+.oy-label { font-weight: 600; }
+.oy-en {
+  font-family: var(--f-body); font-size: .78rem; color: var(--ink-soft);
+  direction: ltr; margin-inline-start: auto;
+}
+.oy-chip {
+  flex: 0 0 auto; font-size: .71rem; padding: 3px 10px; border-radius: 100px;
+  background: var(--line); color: var(--ink-soft);
+}
+.oy-chip.ready { background: var(--teal-tint); color: var(--teal-dark); }
+.onb-go { margin-top: 26px; width: 100%; justify-content: center; }
+.onb-foot { margin-top: 18px; font-size: .78rem; color: var(--ink-soft); }
+
+/* ---------- the page header ---------- */
+
+.sp-head {
+  display: flex; align-items: center; gap: 15px;
+  padding-bottom: 22px; margin-bottom: 24px; border-bottom: 1px solid var(--line);
+}
+.sp-mark { flex: 0 0 auto; width: 50px; }
+.sp-mark svg { width: 100%; height: auto; display: block; }
+.sp-who { min-width: 0; }
+.sp-head h1 {
+  font-family: var(--f-ar); font-weight: 600; font-size: 1.45rem;
+  direction: rtl; text-align: right; margin: 0 0 3px;
+}
+.sp-year { color: var(--ink-soft); font-size: .86rem; }
+.linkish {
+  background: none; border: 0; padding: 0; font: inherit; font-family: var(--f-ar);
+  color: var(--teal); cursor: pointer; text-decoration: underline;
+}
+
+/* ---------- the five blocks ---------- */
+
+.sp-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-l); padding: 22px 24px; margin-bottom: 18px;
+  box-shadow: var(--shadow);
+}
+.sp-card h2 {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--f-ar); font-size: 1.02rem; font-weight: 600; margin-bottom: 15px;
+}
+.sp-card h2::before {
+  content: ""; flex: 0 0 auto; width: 4px; height: 17px; border-radius: 2px; background: var(--teal);
+}
+.sp-card.resume { border-color: var(--teal); }
+.sp-card.resume h2::before { background: var(--gold); }
+.empty { color: var(--ink-soft); font-size: .9rem; }
+.empty.ok { color: var(--teal-dark); }
+.empty.small { font-size: .8rem; margin-top: 11px; }
+
+/* 1 · كمّل من حيث وقفت */
+.rs-eyebrow {
+  display: inline-block; font-family: var(--f-mono); font-size: .73rem; direction: ltr;
+  color: var(--teal-dark); background: var(--teal-tint); padding: 3px 10px; border-radius: 100px;
+}
+.rs-main h3 {
+  font-family: var(--f-display); font-weight: 600; font-size: 1.3rem;
+  direction: ltr; text-align: left; margin: 11px 0 4px;
+}
+.rs-ar { color: var(--ink-soft); font-size: .89rem; margin-bottom: 15px; }
+.rs-bar { height: 7px; background: var(--line); border-radius: 100px; overflow: hidden; }
+.rs-bar-fill { height: 100%; background: var(--teal); border-radius: 100px; transition: width .3s ease; }
+.rs-pct { display: block; margin-top: 6px; font-size: .77rem; color: var(--ink-soft); }
+.sp-card.resume .cta { margin-top: 17px; }
+
+/* 2 · الواجبات المستحقة */
+.due-list { list-style: none; display: grid; gap: 10px; }
+.due-list li {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 14px; background: var(--paper);
+  border: 1px solid var(--line); border-radius: var(--radius-m);
+}
+.du-body { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.du-no {
+  flex: 0 0 auto; font-family: var(--f-mono); font-size: .78rem; direction: ltr;
+  color: var(--teal-dark); background: var(--teal-tint); padding: 4px 9px; border-radius: 7px;
+}
+.du-body strong {
+  display: block; font-family: var(--f-display); font-size: .99rem;
+  direction: ltr; text-align: left;
+}
+.du-ar { font-size: .81rem; color: var(--ink-soft); }
+.mini-cta {
+  flex: 0 0 auto; text-decoration: none; font-size: .83rem; font-family: var(--f-ar);
+  background: var(--teal); color: #fff; padding: 7px 15px; border-radius: 100px;
+}
+.mini-cta:hover { background: var(--teal-dark); color: #fff; }
+.sp-card.due .ar-note { margin-top: 14px; }
+
+/* 3 · خريطة الوحدات */
+.unit {
+  border: 1px solid var(--line); border-radius: var(--radius-m);
+  margin-bottom: 10px; overflow: hidden; background: var(--paper);
+}
+.unit summary {
+  display: flex; align-items: center; gap: 11px; padding: 13px 16px;
+  cursor: pointer; list-style: none;
+}
+.unit summary::-webkit-details-marker { display: none; }
+.unit summary:hover { background: var(--teal-tint); }
+.un-no { flex: 0 0 auto; font-family: var(--f-mono); font-size: .75rem; color: var(--ink-soft); }
+.un-title {
+  display: flex; flex-direction: column; min-width: 0;
+  font-family: var(--f-display); font-size: 1rem; direction: ltr; text-align: left;
+}
+.un-ar {
+  font-family: var(--f-ar); font-size: .79rem; color: var(--ink-soft);
+  direction: rtl; text-align: right;
+}
+.un-chip {
+  margin-inline-start: auto; flex: 0 0 auto; font-size: .7rem;
+  padding: 3px 10px; border-radius: 100px; background: var(--line); color: var(--ink-soft);
+}
+.un-chip.free { background: var(--gold-tint); color: var(--gold-deep); }
+.un-count { flex: 0 0 auto; font-family: var(--f-mono); font-size: .73rem; color: var(--ink-soft); }
+
+.unit-lessons { display: grid; }
+.ls {
+  display: flex; align-items: center; gap: 11px; padding: 11px 16px;
+  border-top: 1px solid var(--line); background: var(--surface);
+  text-decoration: none; color: var(--ink);
+}
+a.ls:hover { background: var(--teal-tint); }
+.ls.soon, .ls.paid, .ls.locked { opacity: .58; }
+.ls-no {
+  flex: 0 0 auto; min-width: 36px; font-family: var(--f-mono);
+  font-size: .77rem; direction: ltr; color: var(--ink-soft);
+}
+.ls-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ls-title { font-family: var(--f-display); font-size: .96rem; direction: ltr; text-align: left; }
+.ls-ar { font-size: .79rem; color: var(--ink-soft); }
+.ls-chip {
+  flex: 0 0 auto; font-size: .71rem; padding: 3px 10px; border-radius: 100px;
+  background: var(--line); color: var(--ink-soft);
+}
+.ls-chip.done  { background: var(--teal-tint); color: var(--teal-dark); }
+.ls-chip.doing { background: var(--gold-tint); color: var(--gold-deep); font-family: var(--f-mono); }
+.ls-chip.open  { background: var(--teal); color: #fff; }
+
+/* 4 · ملخص الأداء */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 12px; }
+.stat {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius-m); padding: 15px 10px; text-align: center;
+}
+.st-num {
+  display: block; font-family: var(--f-display); font-weight: 600; font-size: 1.65rem;
+  color: var(--teal-dark); direction: ltr;
+}
+.st-label { font-size: .77rem; color: var(--ink-soft); }
+/* the teacher's own number — dashed, gold, and never rendered for a student */
+.stat.dev { border-style: dashed; border-color: var(--gold); }
+.stat.dev .st-num { color: var(--gold-deep); }
+
+/* 5 · آخر النشاط */
+.act-list { list-style: none; display: grid; }
+.act-list li {
+  display: flex; align-items: center; gap: 11px; padding: 9px 2px;
+  border-bottom: 1px dashed var(--line);
+}
+.act-list li:last-child { border-bottom: 0; }
+.ac-dot {
+  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: .71rem;
+  background: var(--line); color: var(--ink-soft);
+}
+.ac-dot.hw   { background: var(--teal); color: #fff; }
+.ac-dot.quiz { background: var(--gold); color: #fff; }
+.ac-dot.open { background: var(--teal-tint); color: var(--teal-dark); }
+.ac-text { flex: 1; min-width: 0; font-size: .87rem; }
+.ac-text strong { font-family: var(--f-display); direction: ltr; }
+.ac-extra { font-family: var(--f-mono); font-size: .75rem; color: var(--ink-soft); direction: ltr; }
+.ac-when { flex: 0 0 auto; font-size: .75rem; color: var(--ink-soft); }
+
+/* ---------- «صفحتي» on the lesson and homework pages ---------- */
+
+.home-link {
+  position: fixed; top: 14px; inset-inline-start: 14px; z-index: 40;
+  font-family: var(--f-ar); font-size: .81rem; text-decoration: none;
+  background: var(--surface); border: 1px solid var(--line); color: var(--ink-soft);
+  padding: 6px 13px; border-radius: 100px; box-shadow: var(--shadow);
+}
+.home-link:hover { border-color: var(--teal); color: var(--teal-dark); }
+
+@media (max-width: 560px) {
+  .sp-card { padding: 18px 16px; }
+  .sp-head h1 { font-size: 1.25rem; }
+  .due-list li { flex-direction: column; align-items: stretch; }
+  .mini-cta { text-align: center; }
+  .un-count { display: none; }
+  .ls-chip { font-size: .68rem; }
+  .home-link { top: 8px; inset-inline-start: 8px; }
 }
 
 /* ---------- demo-mode banner ---------- */

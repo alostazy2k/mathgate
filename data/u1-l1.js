@@ -339,5 +339,9 @@ window.LESSON = {
   },
 
   /* ----------------------------------------------------------- next step */
-  next: { href: '../l2/lesson.html', label: 'Next lesson — Operations on functions' }
+  /* This is the trial lesson, so it has no next lesson in the course map —
+     after the homework the student goes back to his own page. For a lesson
+     that IS in data/course.js, this whole field is ignored: the engine takes
+     the next step from the map. */
+  next: { href: 'index.html', label: 'ارجع لصفحتك' }
 };

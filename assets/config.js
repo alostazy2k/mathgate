@@ -34,7 +34,7 @@ window.PLATFORM_CONFIG = {
      RETRY CODE
      A student who asks to re-submit gets this link from you:
 
-         https://your-site.com/u1/l1/homework.html?retry=w2026a
+         https://alostazy2k.github.io/mathgate/homework.html?id=u1-l1&retry=w2026a
 
      It clears ONLY that lesson's submission lock — his progress and quiz
      scores stay. Change the code whenever you want every link you have
