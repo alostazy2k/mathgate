@@ -126,15 +126,85 @@ window.MathPlatform = (function () {
     } catch (e) { /* never let a bad formula break the page */ }
   }
 
+  var CHEER_COLORS = ['#2F6F6B', '#B4842A', '#1B2A41', '#AA4A32'];
+
+  /* A built-in celebration, so the moment never depends on the internet.
+
+     Until v4.3 this used a library loaded from a CDN, and the whole function
+     began `if (typeof confetti !== 'function') return;` — so whenever that
+     script was slow, blocked or simply not on the page (homework.html never
+     loaded it at all), the celebration silently did not happen. No error, no
+     clue. For a student on an Egyptian mobile connection that is not an edge
+     case, it is Tuesday.
+
+     This draws the same effect in about forty lines of canvas. The library is
+     still used when it happens to be there, because it looks a little better;
+     this is what guarantees something always happens. */
+  function burst(big) {
+    var n = big ? 130 : 45;
+    var cv = document.createElement('canvas');
+    cv.className = 'cheer-canvas';
+    var w = cv.width = window.innerWidth;
+    var h = cv.height = window.innerHeight;
+    document.body.appendChild(cv);
+    var ctx = cv.getContext('2d');
+
+    var bits = [];
+    for (var i = 0; i < n; i++) {
+      var a = (-Math.PI / 2) + (Math.random() - 0.5) * (big ? 1.5 : 1.1);
+      var sp = (big ? 9 : 7) + Math.random() * (big ? 9 : 6);
+      bits.push({
+        x: w / 2 + (Math.random() - 0.5) * (big ? 220 : 120),
+        y: h * (big ? 0.62 : 0.72),
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp,
+        s: 4 + Math.random() * 5,
+        rot: Math.random() * 6.28,
+        vr: (Math.random() - 0.5) * 0.35,
+        c: CHEER_COLORS[(Math.random() * CHEER_COLORS.length) | 0],
+        life: 1
+      });
+    }
+
+    var start = Date.now();
+    (function frame() {
+      ctx.clearRect(0, 0, w, h);
+      var alive = false;
+      bits.forEach(function (b) {
+        b.vy += 0.28;                 /* gravity */
+        b.vx *= 0.995;
+        b.x += b.vx; b.y += b.vy; b.rot += b.vr;
+        b.life = Math.max(0, 1 - (Date.now() - start) / (big ? 2400 : 1800));
+        if (b.life <= 0 || b.y > h + 40) return;
+        alive = true;
+        ctx.save();
+        ctx.globalAlpha = b.life;
+        ctx.translate(b.x, b.y);
+        ctx.rotate(b.rot);
+        ctx.fillStyle = b.c;
+        ctx.fillRect(-b.s / 2, -b.s / 2, b.s, b.s * 0.6);
+        ctx.restore();
+      });
+      if (alive) requestAnimationFrame(frame);
+      else if (cv.parentNode) cv.parentNode.removeChild(cv);
+    })();
+  }
+
   function cheer(big) {
-    if (typeof confetti !== 'function') return;
+    /* The one case where nothing should move: the student asked his device
+       for less motion. That is a setting, not a failure. */
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    confetti({
-      particleCount: big ? 120 : 40,
-      spread: big ? 75 : 55,
-      origin: { y: big ? 0.6 : 0.7 },
-      colors: ['#2F6F6B', '#B4842A', '#1B2A41']
-    });
+
+    if (typeof confetti === 'function') {
+      confetti({
+        particleCount: big ? 130 : 45,
+        spread: big ? 80 : 55,
+        origin: { y: big ? 0.6 : 0.7 },
+        colors: CHEER_COLORS
+      });
+      return;
+    }
+    burst(big);
   }
 
   /* ------------------------------------------------------------- progress */
@@ -1130,6 +1200,12 @@ window.MathPlatform = (function () {
         });
         box.appendChild(list);
       }
+
+      /* An auto-graded question does not offer the camera unless the question
+         itself asks for it — `allowPhoto: true`. Useful for a steps question
+         where you also want to see the working, not only the final numbers. */
+      if (q.allowPhoto === true) box.appendChild(photoBlock(qid, i + 1));
+
       auto.appendChild(box);
     });
 
@@ -1153,12 +1229,103 @@ window.MathPlatform = (function () {
       var f4 = addField({ name: 'hw-' + qid, rule: 'essay', label: 'سؤال ' + num, box: box });
       f4.focusEl = ta;
       f4.err = errLine(box);
+
+      /* A written answer in mathematics is often a page of working, not a
+         paragraph — so the student can photograph it instead of typing it.
+         Which questions offer this is `allowPhoto` on the question itself,
+         defaulting to on for essays. */
+      if (q.allowPhoto !== false) box.appendChild(photoBlock(qid, num));
     });
 
     buildCompletionPanel();
     wireHomeworkSubmit(HW);
     typeset(document.body);
     refreshCompletion(false);
+  }
+
+  /* ------------------------------------------------------- photo answers */
+
+  /* PHOTOS[qid] holds the compressed image the student took, as a data URL.
+     Compression happens in the browser before anything is stored: a phone
+     photo is 3-5 MB and useless at that size in an inbox, while the same page
+     of working is perfectly readable at 1200px wide and about 150 KB. */
+  var PHOTOS = {};
+  var PHOTO_MAX_W = 1200;
+  var PHOTO_QUALITY = 0.72;
+
+  function compressImage(file, cb) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var scale = Math.min(1, PHOTO_MAX_W / img.width);
+        var cv = document.createElement('canvas');
+        cv.width = Math.round(img.width * scale);
+        cv.height = Math.round(img.height * scale);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        cb(cv.toDataURL('image/jpeg', PHOTO_QUALITY));
+      };
+      img.onerror = function () { cb(null); };
+      img.src = reader.result;
+    };
+    reader.onerror = function () { cb(null); };
+    reader.readAsDataURL(file);
+  }
+
+  function photoBlock(qid, num) {
+    var wrap = el('div', 'photo-block');
+
+    /* Sending an image needs somewhere to put it, and a static site has
+       nowhere. The interface is built and ready; it turns itself on with the
+       backend, exactly like the other server-backed features. */
+    if (window.Access && Access.backendOff()) {
+      wrap.innerHTML =
+        '<div class="off-panel compact">' +
+          '<span class="off-badge">الميزة دي لسه مش مفعّلة</span>' +
+          '<h3>صوّر حلك بالكاميرا</h3>' +
+          '<p>هتقدر تصوّر ورقة الحل وترفعها بدل ما تكتبها. دلوقتي اكتب حلك في المربع اللي فوق.</p>' +
+        '</div>';
+      return wrap;
+    }
+
+    wrap.innerHTML =
+      '<label class="photo-btn" for="photo-' + esc(qid) + '">' +
+        '<span class="photo-icon" aria-hidden="true">📷</span>' +
+        '<span>صوّر ورقة الحل أو ارفع صورة</span>' +
+      '</label>' +
+      '<input type="file" id="photo-' + esc(qid) + '" class="photo-input" ' +
+             'accept="image/*" capture="environment" />' +
+      '<div class="photo-preview" hidden></div>' +
+      '<p class="photo-hint">اختياري — ممكن تكتب الحل، أو تصوّره، أو الاتنين.</p>';
+
+    var input = wrap.querySelector('.photo-input');
+    var prev = wrap.querySelector('.photo-preview');
+
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (!f) return;
+      prev.hidden = false;
+      prev.innerHTML = '<span class="photo-working">جاري تجهيز الصورة…</span>';
+      compressImage(f, function (dataUrl) {
+        if (!dataUrl) {
+          prev.innerHTML = '<span class="photo-working bad">ما قدرتش أقرا الصورة دي. جرّب صورة تانية.</span>';
+          return;
+        }
+        PHOTOS[qid] = dataUrl;
+        var kb = Math.round((dataUrl.length * 3 / 4) / 1024);
+        prev.innerHTML = '<img src="' + dataUrl + '" alt="صورة الحل" />' +
+          '<div class="photo-meta"><span>صورة سؤال ' + num + ' · ' + kb + ' ك.ب</span>' +
+          '<button type="button" class="photo-remove">شيل الصورة</button></div>';
+        prev.querySelector('.photo-remove').addEventListener('click', function () {
+          delete PHOTOS[qid];
+          input.value = '';
+          prev.hidden = true;
+          prev.innerHTML = '';
+        });
+      });
+    });
+
+    return wrap;
   }
 
   function answerRow(name, def) {
@@ -1438,7 +1605,28 @@ window.MathPlatform = (function () {
         breakdown: g.lines.join('\n'),
         written_answers: g.essays.map(function (e) {
           return e.q + ' (out of ' + e.maxScore + '):\n' + e.answer;
-        }).join('\n\n---\n\n')
+        }).join('\n\n---\n\n'),
+
+        /* The student's own note, in his words. Optional and never validated:
+           an empty one simply says so, rather than arriving as a blank line
+           you have to interpret. */
+        student_note: (function () {
+          var n = document.getElementById('sNote');
+          var v = n ? n.value.trim() : '';
+          return v || '— لا توجد ملاحظات —';
+        })(),
+
+        /* Photographed working. The images themselves need somewhere to live,
+           which is the backend; until then this records that the student
+           wanted to send one, so nothing is silently lost. */
+        photo_answers: (function () {
+          var ids = Object.keys(PHOTOS);
+          if (!ids.length) return '—';
+          return ids.map(function (id) {
+            var kb = Math.round((PHOTOS[id].length * 3 / 4) / 1024);
+            return id + ' (' + kb + ' KB)';
+          }).join(', ');
+        })()
       };
 
       try {
@@ -1482,6 +1670,10 @@ window.MathPlatform = (function () {
           '<a class="cta secondary" href="' + esc(lessonUrl(L.id)) + '">' +
           '← ارجع للدرس</a></div>';
         okMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        /* The biggest moment on the whole platform, and until v4.3 it passed
+           in silence: this page never even loaded the confetti library. */
+        cheer(true);
       } catch (err) {
         errText.textContent = err.message;
         errMsg.hidden = false;

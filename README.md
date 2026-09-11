@@ -367,6 +367,7 @@ arrives in Step 4 below, with student accounts.
 | 6a | Platform shell: course map, student record, personal page | done — v4.0 |
 | 6b | Registration, price anchor, tagged signals, backend switch | done — v4.1 |
 | 6c | Lesson 1-1 built from the ministry book, 14 patterns | done — v4.2 |
+| 6d | Celebration made CDN-proof · photo answers · student note | done — v4.3 |
 | 4 | Record Unit 1: the 25 clips in docs/shooting-list-s1-u1-l1.md | next |
 | 5 | Publish free, on the domain, collecting name + mobile | after 4 |
 | 6 | Move video to Bunny Stream (signed URLs + watermark) | during term |
@@ -446,7 +447,7 @@ number that matters is the one stamped on the emails you keep.
 
 ## Which version am I looking at?
 
-The bottom of every page prints a build stamp: **`engine v4.2 · s1-u1-l1`**.
+The bottom of every page prints a build stamp: **`engine v4.3 · s1-u1-l1`**.
 If that number does not match the release you just extracted, the browser is serving a
 cached file or you opened an older `platform/` folder.
 
@@ -474,6 +475,39 @@ keeps what you submitted yesterday, no matter how many times you re-extract the 
 ---
 
 ## Changelog
+
+### v4.3 — the celebration, photo answers, and the student's note
+
+**The celebration was broken, and broken silently.** `cheer()` opened with
+`if (typeof confetti !== 'function') return;` — the library came from a CDN, so
+whenever that script was slow, blocked, or simply absent the effect just did not
+happen, with no error to notice. And `homework.html` never loaded it at all, so
+the biggest moment on the platform — pressing submit — passed in silence.
+
+- The engine now **draws its own confetti** (`burst()`, about forty lines of
+  canvas). The library is still used when it is there; this is what guarantees
+  something always happens. Verified with the CDN deliberately blocked.
+- Celebration added to **submitting the homework**, the moment that earns it most.
+- `prefers-reduced-motion` still suppresses it — that is a setting, not a failure.
+
+**Photo answers.** A written answer in mathematics is usually a page of working,
+not a paragraph, so the student can photograph it. `capture="environment"` opens
+the camera directly on a phone; the image is resized to 1200px and compressed in
+the browser before anything else happens (a 4 MB phone photo becomes ~150 KB and
+stays perfectly readable).
+
+Which questions offer it is `allowPhoto` on the question: **on by default for
+`essay`**, off for everything else, and settable either way — including
+`allowPhoto: true` on a `steps` question whose working you want to see.
+
+Sending the image needs somewhere to put it, which is the backend. Until then
+the block renders the same switched-off notice as the other server-backed
+features, and the live uploader is written, tested and waiting behind it.
+
+**The student's note.** An optional box at the end of the homework, never
+validated, travelling with the submission as `student_note` — so a question about
+the lesson reaches you at the moment the student actually has it. An empty one
+arrives as «لا توجد ملاحظات» rather than a blank line you have to interpret.
 
 ### v4.2 — lesson 1-1, built from the book
 

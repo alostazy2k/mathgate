@@ -88,7 +88,7 @@ window.PLATFORM_CONFIG = {
     /* WHICH units are free is not set here on purpose: it lives on each unit
        in data/course.js, next to the unit itself. One fact, one place. */
     payHowAr: 'التحويل على فودافون كاش، وابعتلي صورة التحويل على واتساب وهبعتلك كود الفتح في نفس اليوم.',
-    contact: ''            /* your WhatsApp number — leave '01006396095' to hide the line */
+    contact: ''            /* your WhatsApp number — leave '' to hide the line */
   },
 
   /* ----------------------------------------------------------------------

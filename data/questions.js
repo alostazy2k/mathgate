@@ -22,6 +22,13 @@
      'interval'  order is kept — [2,6] is NOT [6,2]
      (omitted)   exact string match after normalising
 
+   allowPhoto   lets the student photograph his working instead of typing it.
+                Defaults to ON for `essay` (a written answer in mathematics is
+                usually a page of working, not a paragraph) and OFF for every
+                other type. Set it explicitly either way:
+                  allowPhoto: false   on an essay that must be typed
+                  allowPhoto: true    on a steps question whose working matters
+
    placeholder  shows the SHAPE of the answer, never the answer itself:
                 "(x-a)(x-b)", "a, b", "a number" — not "(x-1)(x-2)", "1, 2".
    ========================================================================== */
