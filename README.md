@@ -449,7 +449,7 @@ number that matters is the one stamped on the emails you keep.
 
 ## Which version am I looking at?
 
-The bottom of every page prints a build stamp: **`engine v4.4 · s1-u1-l1`**.
+The bottom of every page prints a build stamp: **`engine v4.5 · s1-u1-l1`**.
 If that number does not match the release you just extracted, the browser is serving a
 cached file or you opened an older `platform/` folder.
 
@@ -477,6 +477,32 @@ keeps what you submitted yesterday, no matter how many times you re-extract the 
 ---
 
 ## Changelog
+
+### v4.5 — fix: a retry link no longer loses the lesson
+
+`?retry=` cleared the **whole** query string after it ran, `?id=` included. The
+page in front of the student stayed correct — the lesson file had already been
+chosen before that line executed — but the address bar was left reading
+`homework.html` with no lesson at all. The moment he refreshed, the most
+ordinary thing a student does, he landed on the default lesson instead of his
+own. It hit precisely the student who had just been given a retry link.
+
+Only `retry` is stripped now; everything else in the address survives.
+Verified: before the fix a refresh landed on *Real Functions*; after it, on
+*An Introduction in Complex Numbers*, where the student was.
+
+What a retry link does and does not touch was also confirmed by test:
+
+```
+wg:hwsent:<lesson>       cleared   ← the one thing that reopens the form
+wg:hwattempts:<lesson>   kept      ← so the next email says "attempt 2"
+wg:hwbest:<lesson>       kept      ← the highest attempt still counts
+wg:progress:<lesson>     kept      ← videos, exercises, quiz untouched
+every other lesson       untouched
+```
+
+`docs/كود-إعادة-فتح-الواجب.txt` is a reminder sheet holding the current code and
+a ready-made link per lesson, generated from `course.js` so the links are exact.
 
 ### v4.4 — a colour switch the student controls
 

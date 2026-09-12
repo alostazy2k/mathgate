@@ -1558,8 +1558,24 @@ window.MathPlatform = (function () {
     if (!m) return false;
     var given = decodeURIComponent(m[1]);
     var expected = (window.PLATFORM_CONFIG && window.PLATFORM_CONFIG.retryCode) || '';
-    /* strip the query either way, so a refresh does not re-run this */
-    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+
+    /* Strip ONLY `retry`, so refreshing does not re-open the homework a second
+       time — but everything else in the address survives.
+
+       Until v4.5 this line threw the WHOLE query away, `?id=` included. The
+       page in front of the student stayed correct, because the lesson file had
+       already been chosen before this ran. But the address bar now read
+       `homework.html` with no lesson at all, so the moment he refreshed — the
+       most ordinary thing a student does — he landed on the default lesson
+       instead of his own. It hit precisely the student who had just been given
+       a retry link. */
+    try {
+      var kept = location.search.replace(/^\?/, '').split('&').filter(function (kv) {
+        return kv && kv.indexOf('retry=') !== 0;
+      });
+      history.replaceState(null, '',
+        location.pathname + (kept.length ? '?' + kept.join('&') : '') + location.hash);
+    } catch (e) {}
     if (!expected || given !== expected) return 'bad';
     try { localStorage.removeItem('wg:hwsent:' + L.id); } catch (e) {}
     return true;
