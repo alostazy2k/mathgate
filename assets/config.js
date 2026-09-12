@@ -31,6 +31,24 @@ window.PLATFORM_CONFIG = {
   videoBase: '',
 
   /* ----------------------------------------------------------------------
+     VIDEO VERSION  —  bump this number EVERY time you replace a video file.
+
+     Why it has to exist: a browser that has already played a clip keeps it.
+     Replace the file, keep the name, and it goes on playing the OLD one —
+     through a page reload, through closing the browser, whatever the server
+     says about caching. It was tested: only a new query string fetched the
+     new file.
+
+     So every video URL is sent as  …/seg1.mp4?v=<this number>.  Change 1 to
+     2 here and every student gets every re-recorded clip on his next visit.
+     Leave it alone and only students who never opened the lesson would see
+     your new recording.
+
+     One number, one file, no HTML to touch.
+     ---------------------------------------------------------------------- */
+  videoVersion: 1,
+
+  /* ----------------------------------------------------------------------
      RETRY CODE
      A student who asks to re-submit gets this link from you:
 

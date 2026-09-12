@@ -11,6 +11,7 @@ platform/
 ├── robots.txt           preview only — delete it at launch
 ├── index.html           THE STUDENT'S PAGE — the entry point, holds no content itself
 ├── start-server.bat     double-click to run the site locally (Windows)
+├── serve.py             the local server itself — supports video seeking
 ├── lesson.html          template — identical for every lesson, never edit per lesson
 ├── homework.html        template — identical for every lesson, never edit per lesson
 ├── assets/
@@ -447,7 +448,7 @@ number that matters is the one stamped on the emails you keep.
 
 ## Which version am I looking at?
 
-The bottom of every page prints a build stamp: **`engine v4.3 · s1-u1-l1`**.
+The bottom of every page prints a build stamp: **`engine v4.3.3 · s1-u1-l1`**.
 If that number does not match the release you just extracted, the browser is serving a
 cached file or you opened an older `platform/` folder.
 
@@ -475,6 +476,80 @@ keeps what you submitted yesterday, no matter how many times you re-extract the 
 ---
 
 ## Changelog
+
+### v4.3.3 — replacing a video actually replaces it
+
+Re-record a clip, keep the same file name, and the browser goes on playing the
+OLD one — through a reload, through closing the browser, and regardless of what
+the server says about caching. Tested directly: the file was swapped on disk and
+reloaded, and the old clip still played even with `Cache-Control: no-store`.
+Only a new query string fetched the new file.
+
+That matters far more for students than for you. Without a fix, a re-recorded
+lesson would only ever be seen by students who had never opened it before.
+
+Every video URL now carries `videoVersion` from `config.js`:
+
+```
+videos/s1-u1-l1/seg1-why-complex-numbers.mp4?v=1
+```
+
+**Bump that number whenever you replace a video file.** One number, one file, no
+HTML to touch — and every student gets every re-recorded clip on his next visit.
+Verified end to end: at `videoVersion: 1` the page played the 5-second clip; the
+file was replaced and the number changed to 2, and the page played the new
+15-second one.
+
+### v4.3.2 — video seeking works locally
+
+Dragging a lesson video's progress bar did nothing. The cause was not the video
+and not the page: `python -m http.server` **ignores the `Range` header
+entirely** — there is no range handling in `SimpleHTTPRequestHandler` at all. It
+answers every request with the whole file and a plain `200`.
+
+Seeking IS a range request: the browser asks for one slice of the file ("send me
+from byte 4,000,000"). A server that cannot answer that leaves the seek bar
+present but inert.
+
+`serve.py` replaces it and answers properly with `206 Partial Content`. Verified
+byte-exact against the file on disk for all three range forms, and in a real
+browser: a 20-second clip reports `duration: 20`, `seekable: 20`, and jumps to
+15s and back to 3s.
+
+`start-server.bat` now runs `serve.py`. Nothing else changed, and nothing about
+the published site changed — GitHub Pages already supported ranges, so this
+never affected a student. It only ever affected you, testing.
+
+**One thing to set in your video export:** choose **Fast Start** / *web
+optimised* (in ffmpeg, `-movflags +faststart`). It moves the MP4 index to the
+front of the file. Without it the browser must download the whole video before
+it knows where anything is, so seeking is slow even on a server that supports
+it.
+
+### v4.3.1 — a video that will not play now says why
+
+A missing or unplayable video failed in complete silence: the poster stayed up,
+pressing play did nothing, and there was no way to tell whether the file was in
+the wrong folder, misnamed, or in a format the browser cannot open.
+
+It now shows the expected path and the likely cause. Both cases are covered —
+`videos/<lesson id>/` is easy to miss, and H.264 is the only codec every browser
+opens.
+
+**Where the files go — note the folder named after the lesson:**
+
+```
+platform/
+├── index.html
+└── videos/
+    └── s1-u1-l1/                        ← this folder is required
+        ├── seg1-why-complex-numbers.mp4
+        └── …
+```
+
+A file dropped straight into `videos/` is never found: every path in a lesson
+file is `videos/<lesson id>/<name>.mp4`, so the platform can hold sixty lessons
+without two clips ever colliding on a name.
 
 ### v4.3 — the celebration, photo answers, and the student's note
 

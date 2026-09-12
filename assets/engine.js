@@ -243,13 +243,53 @@ window.MathPlatform = (function () {
      file ever has to be edited. It was declared in v3.7 and never actually
      read; from v4.2 it is. An absolute path or a full URL passes through
      untouched, so a single lesson can be moved on its own. */
+  /* Says which file was expected and where. Written for the author, not the
+     student — the student never sees it once the files are in place, and when
+     he does it still tells him something true instead of nothing. */
+  function showVideoError(host, url) {
+    clearVideoError(host);
+    var d = el('div', 'video-missing');
+    d.innerHTML =
+      '<span class="vm-title">المقطع ده مش متاح دلوقتي</span>' +
+      '<p>المتصفح مش لاقي الملف، أو مش قادر يشغّله.</p>' +
+      '<p class="vm-path">المفروض يكون هنا: <code>' + esc(String(url).split('?')[0]) + '</code></p>' +
+      '<p class="vm-fix">لو الملف موجود فعلاً في المكان ده، فالمشكلة في ترميز الفيديو — ' +
+      'احفظه <strong>MP4 بترميز H.264</strong> وهو الترميز الوحيد اللي كل المتصفحات بتفتحه.</p>';
+    host.appendChild(d);
+  }
+
+  function clearVideoError(host) {
+    var old = host.querySelector('.video-missing');
+    if (old) old.parentNode.removeChild(old);
+  }
+
   function mediaUrl(src) {
     if (!src) return src;
-    if (/^(https?:)?\/\//.test(src) || src.charAt(0) === '/') return src;
-    var base = (window.PLATFORM_CONFIG && window.PLATFORM_CONFIG.videoBase) || '';
-    if (!base) return src;
-    if (base.charAt(base.length - 1) !== '/') base += '/';
-    return base + src;
+
+    var url = src;
+    if (!/^(https?:)?\/\//.test(src) && src.charAt(0) !== '/') {
+      var base = (window.PLATFORM_CONFIG && window.PLATFORM_CONFIG.videoBase) || '';
+      if (base) {
+        if (base.charAt(base.length - 1) !== '/') base += '/';
+        url = base + src;
+      }
+    }
+
+    /* Re-record a clip, keep the same file name, and a browser that has already
+       seen it will go on playing the OLD one — through a reload, through
+       closing the browser, and no matter what the server's cache headers say.
+       Verified: replacing the file and reloading still served the old video
+       even with `Cache-Control: no-store`; adding a new query string served the
+       new one instantly.
+
+       So every video URL carries `videoVersion` from config.js. Bump that one
+       number whenever you replace a video file, and every student gets the new
+       clip on his next visit. Without it, only students who have never opened
+       the lesson would ever see the re-recorded version. */
+    var v = window.PLATFORM_CONFIG && window.PLATFORM_CONFIG.videoVersion;
+    if (v) url += (url.indexOf('?') < 0 ? '?' : '&') + 'v=' + encodeURIComponent(v);
+
+    return url;
   }
 
   function lessonUrl(id) {
@@ -400,10 +440,21 @@ window.MathPlatform = (function () {
         b.setAttribute('aria-selected', String(i === j));
       });
       var s = v.segments[i];
-      video.src = mediaUrl(s.src);
+      var url = mediaUrl(s.src);
+      video.src = url;
       video.poster = posterFor(s.title);
       cap.innerHTML = s.caption ? s.caption : '';
       if (s.ar) { var n = arNote({ label: 'ملخص المقطع', text: s.ar }); cap.appendChild(n); }
+
+      /* A missing or unplayable video file used to fail in complete silence:
+         the poster stayed up, pressing play did nothing, and there was no clue
+         whether the file was in the wrong folder, misnamed, or encoded in a
+         format the browser cannot open. With preload="none" the error arrives
+         only when the student presses play, which is exactly when he needs to
+         be told. */
+      video.onerror = function () { showVideoError(cap, url); };
+      video.onloadeddata = function () { clearVideoError(cap); };
+
       typeset(cap);
     }
 
@@ -910,7 +961,12 @@ window.MathPlatform = (function () {
       video.load();
     }
     function open(src) {
-      video.src = mediaUrl(src);
+      var url = mediaUrl(src);
+      var box = modal.querySelector('.modal-video-wrap');
+      clearVideoError(box);
+      video.onerror = function () { showVideoError(box, url); };
+      video.onloadeddata = function () { clearVideoError(box); };
+      video.src = url;
       modal.classList.add('open');
       video.play().catch(function () {});
     }

@@ -1087,3 +1087,21 @@ button.un-chip.pay:hover { background: var(--gold-tint); }
 .note-box textarea:focus {
   outline: 2px solid var(--teal); outline-offset: 1px; border-color: var(--teal);
 }
+
+/* a video that will not load says why, instead of a poster that does nothing */
+.video-missing {
+  margin-top: 12px; padding: 14px 16px; direction: rtl; text-align: right;
+  background: var(--rust-tint); border-right: 3px solid var(--rust);
+  border-radius: var(--radius-s); font-family: var(--f-ar);
+}
+.video-missing .vm-title {
+  display: block; font-weight: 600; color: var(--rust); font-size: .92rem; margin-bottom: 5px;
+}
+.video-missing p { font-size: .83rem; color: var(--ink); margin: 3px 0; }
+.video-missing .vm-path, .video-missing .vm-fix { color: var(--ink-soft); font-size: .8rem; }
+.video-missing code {
+  font-family: var(--f-mono); direction: ltr; display: inline-block;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 6px; font-size: .92em;
+}
+.modal-video-wrap .video-missing { margin: 12px; }

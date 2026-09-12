@@ -45,9 +45,9 @@ echo      Press Ctrl+C to stop the server.
 echo.
 
 REM --- open the browser a couple of seconds after the server is up ----------
-start "" /b cmd /c "timeout /t 2 >nul & explorer http://localhost:%PORT%/%PAGE%"
 
-%PY% -m http.server %PORT%
+
+%PY% serve.py %PORT%
 goto :eof
 
 :nopython
