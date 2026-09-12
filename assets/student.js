@@ -376,7 +376,11 @@ window.Student = (function () {
   function reset() {
     try {
       Object.keys(localStorage)
-        .filter(function (k) { return k.indexOf('wg:') === 0; })
+        .filter(function (k) {
+          /* wg:theme is a preference, not progress — resetting a test student
+             should not also throw away the colour mode you are looking at. */
+          return k.indexOf('wg:') === 0 && k !== 'wg:theme';
+        })
         .forEach(function (k) { localStorage.removeItem(k); });
     } catch (e) {}
   }

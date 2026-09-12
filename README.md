@@ -20,6 +20,7 @@ platform/
 │   ├── student.js       THE STUDENT RECORD — the only file that touches storage
 │   ├── access.js        the three doors: registration, price, backend switch
 │   ├── home.js          draws index.html: first-visit screen + the five blocks
+│   ├── theme-toggle.js  the light / dark / auto switch
 │   ├── config.js        site-wide settings (Web3Forms key, video base URL)
 │   └── favicon.svg      site icon
 ├── data/
@@ -448,7 +449,7 @@ number that matters is the one stamped on the emails you keep.
 
 ## Which version am I looking at?
 
-The bottom of every page prints a build stamp: **`engine v4.3.3 · s1-u1-l1`**.
+The bottom of every page prints a build stamp: **`engine v4.4 · s1-u1-l1`**.
 If that number does not match the release you just extracted, the browser is serving a
 cached file or you opened an older `platform/` folder.
 
@@ -476,6 +477,42 @@ keeps what you submitted yesterday, no matter how many times you re-extract the 
 ---
 
 ## Changelog
+
+### v4.4 — a colour switch the student controls
+
+The dark palette has been in `theme.css` since the first build, but it followed
+the phone and nothing else: a student reading at night on a bright-mode phone
+had no way to dim the page, and one reading in daylight on a dark-mode phone had
+no way to brighten it.
+
+One button, now on every page, with **three** states:
+
+| | |
+|---|---|
+| **تلقائي** | follows the phone or laptop — the default, nothing stored |
+| **فاتح** | always light |
+| **غامق** | always dark |
+
+Three and not two on purpose: a plain toggle locks a student out of "follow my
+device" the moment he touches it, and his page stops dimming with the rest of
+his phone at night. The third state is the way back.
+
+- The choice is applied by a four-line script in each `<head>`, **before the
+  first paint** — a switch that ran at the end of the body would flash the wrong
+  colours on every load.
+- `<meta name="theme-color">` follows too, so the phone's own browser bar stops
+  sitting white above a dark page.
+- On «تلقائي» the page follows the device **live**: if the phone turns dark at
+  sunset the page follows without a reload.
+- `wg:theme` survives the DEV reset — it is a preference, not progress.
+
+**A real contrast bug was found and fixed while testing this.** Every accent
+chip and button was `color: #fff` over `var(--teal)`. In the light palette teal
+is dark and white reads at 5.8:1; in the dark palette teal becomes *light*, and
+the «ابدأ» chip measured **2.48:1 — unreadable**. A new `--on-accent` token
+flips with the palette. Every measured element on the student page and the
+lesson page now passes AA (≥4.5:1) in both modes; the worst is 4.65 and the
+«ابدأ» chip went from 2.48 to 7.18.
 
 ### v4.3.3 — replacing a video actually replaces it
 
