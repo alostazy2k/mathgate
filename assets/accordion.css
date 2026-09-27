@@ -1,0 +1,107 @@
+/* ==========================================================================
+   LESSON PAGE ACCORDION  ·  assets/accordion.css
+   --------------------------------------------------------------------------
+   Kept out of theme.css on purpose: this is one focused feature (the four
+   collapsible sections after the video on lesson.html — Lesson Explanation,
+   Interactive examples, Self-assessment quiz, Homework page), so it can be
+   reviewed, tested, or reverted by adding/removing one <link> line, without
+   touching or re-shipping the 1000+ line stylesheet everything else depends
+   on. It only styles the wrapper; every element inside it (.worked, .ex-card,
+   .quiz-panel, .next-step, ...) keeps exactly the look it already had.
+
+   Native <details>/<summary> is used instead of a hand-rolled toggle: it is
+   keyboard-accessible for free (Enter/Space, and screen readers announce
+   "collapsed/expanded" on their own), needs zero JavaScript, and degrades to
+   "just show everything" if CSS ever fails to load — never a dead button.
+   ========================================================================== */
+
+.lesson-acc {
+  border-top: 1px solid var(--line);
+}
+.lesson-acc:last-of-type {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 40px;
+}
+
+/* the clickable title bar */
+.lesson-acc > summary {
+  list-style: none;               /* Firefox's own disclosure triangle */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 26px 2px;
+  -webkit-tap-highlight-color: transparent;
+}
+.lesson-acc > summary::-webkit-details-marker { display: none; }   /* Chrome/Safari */
+.lesson-acc > summary::marker { content: ""; }                      /* modern engines */
+
+.lesson-acc .acc-title {
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 1.7rem;
+  color: var(--ink);
+  transition: color .18s ease;
+}
+.lesson-acc .acc-title .ar-inline {
+  display: block;
+  font-family: var(--f-ar);
+  direction: rtl;
+  text-align: right;
+  font-size: .58em;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin-top: 5px;
+}
+.lesson-acc > summary:hover .acc-title { color: var(--teal-dark); }
+
+/* the arrow — a small circled chevron that flips when the section opens */
+.acc-arrow {
+  flex: 0 0 auto;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-soft);
+  transition: transform .22s ease, background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+.acc-arrow::before {
+  content: "▾";
+  font-size: .92rem;
+  line-height: 1;
+}
+.lesson-acc > summary:hover .acc-arrow { border-color: var(--teal); color: var(--teal-dark); }
+.lesson-acc[open] > summary .acc-arrow {
+  transform: rotate(180deg);
+  background: var(--teal-tint);
+  border-color: var(--teal);
+  color: var(--teal-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acc-arrow { transition: none; }
+}
+
+/* the revealed content — engine.js fills #theory / #exercises / #quiz / #next
+   exactly as before, one level deeper; this just gives it breathing room */
+.acc-body { padding: 2px 2px 36px; }
+.acc-body > *:first-child { margin-top: 0; }
+
+/* buildExercises() and buildQuiz() in engine.js print their own heading —
+   "Interactive examples" and "Self-assessment quiz" — which is now exactly
+   what the summary above already says. Hiding the inner duplicate here (a
+   direct-child selector, so it never touches the per-subsection headings
+   inside #theory, which have their own distinct titles) means engine.js
+   itself stays completely unchanged, on this page and every other lesson
+   that does not use this accordion. */
+.lesson-acc .examples-block > .section-head,
+.lesson-acc .quiz-block > .section-head {
+  display: none;
+}
+
+@media (max-width: 620px) {
+  .lesson-acc .acc-title { font-size: 1.32rem; }
+  .lesson-acc > summary { padding: 20px 2px; gap: 12px; }
+  .acc-arrow { width: 28px; height: 28px; }
+}
