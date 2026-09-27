@@ -15,6 +15,17 @@
   with `u1-l1` as the default, so old links keep working. Nothing in this
   file changes when a lesson is added — only a new file in data/ and a line
   in data/course.js.
+
+  ACCORDION UPDATE (27 Sept 2026): everything after the video is now grouped
+  into four collapsible <details> sections — Lesson Explanation, Interactive
+  examples, Self-assessment quiz, Homework page — all collapsed by default,
+  so the page never looks longer than one screenful at a glance. This is a
+  markup/CSS-only change: engine.js still fills #theory / #exercises / #quiz
+  / #next exactly as before — it has no idea they now sit one level deeper
+  inside a <details> wrapper. The "Homework page" section is a thin wrapper
+  around the existing #next block (the same "go to homework" button and unit
+  progress bar that lived here before) — the homework FORM itself still lives
+  on its own page, homework.html; nothing about that changed.
   ==========================================================================
 -->
 
@@ -45,6 +56,11 @@
 </script>
 
 <link rel="stylesheet" href="assets/theme.css?v=4.5" />
+<!-- The four collapsible sections below (kept in its own small file rather
+     than folded into theme.css, so this one feature can be reviewed, tested
+     or reverted by adding/removing a single line — nothing in theme.css
+     itself is touched). -->
+<link rel="stylesheet" href="assets/accordion.css?v=4.5" />
 </head>
 
 <body>
@@ -61,13 +77,52 @@
 
   <section id="video"></section>
 
-  <div id="theory"></div>
+  <!-- ===================================================================
+       Everything below is one of four collapsible sections. Each <details>
+       starts closed (no `open` attribute) — expanding it is the student's
+       own choice, so the page never looks like one long scroll of content
+       he has to get through before he can find anything.
+       =================================================================== -->
 
-  <section class="examples-block" id="exercises"></section>
+  <details class="lesson-acc" id="accTheory">
+    <summary>
+      <span class="acc-title">Lesson Explanation<span class="ar-inline">شرح الدرس</span></span>
+      <span class="acc-arrow" aria-hidden="true"></span>
+    </summary>
+    <div class="acc-body">
+      <div id="theory"></div>
+    </div>
+  </details>
 
-  <section class="quiz-block" id="quiz"></section>
+  <details class="lesson-acc" id="accExercises">
+    <summary>
+      <span class="acc-title">Interactive examples<span class="ar-inline">تمارين وأمثلة تفاعلية</span></span>
+      <span class="acc-arrow" aria-hidden="true"></span>
+    </summary>
+    <div class="acc-body">
+      <section class="examples-block" id="exercises"></section>
+    </div>
+  </details>
 
-  <div class="next-step" id="next"></div>
+  <details class="lesson-acc" id="accQuiz">
+    <summary>
+      <span class="acc-title">Self-assessment quiz<span class="ar-inline">كويز للتقييم الذاتي</span></span>
+      <span class="acc-arrow" aria-hidden="true"></span>
+    </summary>
+    <div class="acc-body">
+      <section class="quiz-block" id="quiz"></section>
+    </div>
+  </details>
+
+  <details class="lesson-acc" id="accHomework">
+    <summary>
+      <span class="acc-title">Homework page<span class="ar-inline">صفحة الواجب</span></span>
+      <span class="acc-arrow" aria-hidden="true"></span>
+    </summary>
+    <div class="acc-body">
+      <div class="next-step" id="next"></div>
+    </div>
+  </details>
 
   <footer>
     <strong>Dr. Wessam Gouda</strong> · Mathematics
