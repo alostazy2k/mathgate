@@ -84,6 +84,10 @@ window.LESSON = {
   homeworkHref: 'homework.html',
   lessonHref: 'lesson.html',
 
+  /* the printable handout (assets/handout.js draws the button).
+     Bump `version` by one whenever the PDF file is replaced. */
+  handout: { src: 'handouts/s1-u1-l1.pdf', version: 1, pages: 24 },
+
   /* the Argand plane with the point 3 + 2i marked */
   art:
     '<svg viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg">' +
