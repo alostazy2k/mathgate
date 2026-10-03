@@ -1,0 +1,64 @@
+/* ==========================================================================
+   LESSON HANDOUT BUTTON  ·  assets/handout.css
+   --------------------------------------------------------------------------
+   One focused feature, kept in its own two files (handout.css + handout.js)
+   so it can be reviewed, tested or removed by deleting one <link>, one
+   <script> and one <div> from lesson.html. Nothing in theme.css or engine.js
+   is touched. Colours come from the theme's own custom properties, so the
+   button follows the light / dark switch by itself.
+   ========================================================================== */
+
+.handout-slot { margin: 26px 0 30px; }
+.handout-slot[hidden] { display: none; }
+
+.handout-btn {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1.5px solid var(--teal);
+  border-radius: var(--radius-m);
+  color: var(--ink); text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: box-shadow .18s ease, transform .18s ease, background-color .18s ease;
+}
+.handout-btn:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); background: var(--teal-tint); }
+.handout-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+.hb-icon {
+  flex: 0 0 auto; width: 46px; height: 46px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--teal); color: var(--on-accent);
+}
+.hb-icon svg { width: 24px; height: 24px; }
+
+.hb-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.hb-en { font-weight: 600; font-size: 1.05rem; line-height: 1.3; }
+.hb-ar { font-family: var(--f-ar); direction: rtl; text-align: left; font-size: 1rem; color: var(--ink-soft); line-height: 1.5; }
+
+.hb-meta {
+  flex: 0 0 auto; font-family: var(--f-mono, monospace); font-size: .78rem;
+  color: var(--teal-dark); background: var(--teal-tint);
+  border-radius: 100px; padding: 4px 11px; white-space: nowrap;
+}
+
+.handout-sub {
+  margin: 9px 4px 0; font-size: .86rem; color: var(--ink-soft);
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.handout-sub .ar { font-family: var(--f-ar); direction: rtl; margin-left: auto; text-align: right; }
+
+/* a paid unit: the handout exists but is not handed out yet */
+.handout-locked {
+  padding: 14px 18px; border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius-m); color: var(--ink-soft); font-size: .92rem;
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.handout-locked .ar { font-family: var(--f-ar); direction: rtl; margin-left: auto; text-align: right; }
+
+@media (max-width: 560px) {
+  .handout-btn { padding: 14px 14px; gap: 12px; }
+  .hb-icon { width: 40px; height: 40px; }
+  .hb-en { font-size: .97rem; }
+  .hb-ar { font-size: .93rem; }
+  .hb-meta { display: none; }
+}
