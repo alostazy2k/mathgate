@@ -61,6 +61,9 @@
      or reverted by adding/removing a single line — nothing in theme.css
      itself is touched). -->
 <link rel="stylesheet" href="assets/accordion.css?v=4.5" />
+<!-- The "download the lesson handout" button (its own two small files, same
+     reasoning as the accordion: add or remove the feature with three lines). -->
+<link rel="stylesheet" href="assets/handout.css?v=4.5" />
 </head>
 
 <body>
@@ -76,6 +79,11 @@
   <div class="goal-box" id="goal"></div>
 
   <section id="video"></section>
+
+  <!-- Printable handout of the lesson. Filled by assets/handout.js, and only
+       when the lesson's data file has a `handout` field — otherwise it stays
+       hidden and the page looks exactly as before. -->
+  <div id="handout" hidden></div>
 
   <!-- ===================================================================
        Everything below is one of four collapsible sections. Each <details>
@@ -186,6 +194,7 @@
 </script>
 
 <script src="assets/engine.js?v=4.5"></script>
+<script src="assets/handout.js?v=4.5"></script>
 <script>
   window.addEventListener('load', function () { MathPlatform.renderLesson(); });
 </script>
